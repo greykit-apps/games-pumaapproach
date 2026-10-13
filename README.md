@@ -52,19 +52,21 @@ At play time the words are decoded into 8 kHz buffers and spliced with a short g
 
 ## Keys
 
-One hand on the mouse, the other on the keys. Three layouts do the same things:
+One hand on the mouse, the other on the keys, whichever hand that is. Three layouts do the same things, and the command panel's hints follow the one used last:
 
-| | arrows | numpad | left hand |
+| | left hand | arrows | numpad |
 |---|---|---|---|
-| heading left, right | ← → | 4 6 | A D |
-| height up, down | ↑ ↓ | 8 5 | W S |
-| hold, left or right turns | [ ] | 7 9 | Q R |
-| say heading and altitude | / | 0 | F |
-| fast time, while held | Space or . | * | Space |
+| heading left, right | A D | ← → | 4 6 |
+| height up, down | W S | ↑ ↓ | 8 5 |
+| hold, left or right turns | Z C | [ ] | 1 3 |
+| say heading and height | Q | / | 9 |
+| send; at height 0, clear to land | E | Enter | 7 or Enter |
+| fast time, while held | Space | Space or . | 0 |
+
+Space only ever runs the clock, whatever has the focus; a focused button is pressed with Enter.
 
 | Key | Action |
 |---|---|
-| Enter | send; at height 0 that is the landing clearance |
 | Esc | cancel, deselect |
 | L | scope aids: Learning or Classic |
 | Tab, Shift+Tab | next plane down the board, or up |

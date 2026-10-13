@@ -1296,7 +1296,7 @@ const KEY_MUTED = "pumaapproach_muted_v1";
 function load(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
 function save(key, v) { try { if (v == null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* no storage */ } }
 /* a new player gets the Learning scope; Classic, the 1985 one, is a choice */
-let prefs = Object.assign({ voice: true, speed: 1, aids: "learning", coached: false }, load(KEY_PREFS, {}));
+let prefs = Object.assign({ voice: true, speed: 1, aids: "learning", coached: false, layout: "left" }, load(KEY_PREFS, {}));
 let career = load(KEY_CAREER, null);          /* { rank, total, shifts, skill } */
 let careerLog = load(KEY_LOG, []);            /* every shift worked, newest last */
 const $ = id => document.getElementById(id);
@@ -1646,17 +1646,18 @@ function showHelp(tab = 0) {
       ${[1, 2, 3, 4, 5, 6, 7].map(r => `<tr><td class="${career && career.rank === r ? "me" : ""}">${gsOf(r)}</td>${SECTORS.map((s, i) => { const sh = shiftFor(r, i); return "<td>" + (sh < 0 ? "—" : esc(SHIFTS[sh].name)) + "</td>"; }).join("")}</tr>`).join("")}</table>
       <p>A shift pays <b>$500 a rank</b> plus a bonus: <b>$100</b> per flight landed or handed off, <b>$200</b> per emergency landed, <b>−$100</b> per minute of delay. A plane is delayed once it has been with you longer than its trip should take.</p>`],
     ["Keys", `
-      <p>One hand on the mouse, the other on the keys. Three layouts do the same things: pick the one under your hand.</p>
+      <p>One hand on the mouse, the other on the keys, whichever hand that is. Three layouts do the same things: pick the one under your hand. The command panel's hints follow the one you used last.</p>
       <table>
-      <tr><td></td><td><b>arrows</b></td><td><b>numpad</b></td><td><b>left hand</b></td></tr>
-      <tr><td>heading left, right</td><td><kbd>←</kbd> <kbd>→</kbd></td><td><kbd>4</kbd> <kbd>6</kbd></td><td><kbd>A</kbd> <kbd>D</kbd></td></tr>
-      <tr><td>height up, down</td><td><kbd>↑</kbd> <kbd>↓</kbd></td><td><kbd>8</kbd> <kbd>5</kbd></td><td><kbd>W</kbd> <kbd>S</kbd></td></tr>
-      <tr><td>hold, left or right turns</td><td><kbd>[</kbd> <kbd>]</kbd></td><td><kbd>7</kbd> <kbd>9</kbd></td><td><kbd>Q</kbd> <kbd>R</kbd></td></tr>
-      <tr><td>say heading and altitude</td><td><kbd>/</kbd></td><td><kbd>0</kbd></td><td><kbd>F</kbd></td></tr>
-      <tr><td>fast time, while held</td><td><kbd>Space</kbd> <kbd>.</kbd></td><td><kbd>*</kbd></td><td><kbd>Space</kbd></td></tr>
+      <tr><td></td><td><b>left hand</b></td><td><b>arrows</b></td><td><b>numpad</b></td></tr>
+      <tr><td>heading left, right</td><td><kbd>A</kbd> <kbd>D</kbd></td><td><kbd>←</kbd> <kbd>→</kbd></td><td><kbd>4</kbd> <kbd>6</kbd></td></tr>
+      <tr><td>height up, down</td><td><kbd>W</kbd> <kbd>S</kbd></td><td><kbd>↑</kbd> <kbd>↓</kbd></td><td><kbd>8</kbd> <kbd>5</kbd></td></tr>
+      <tr><td>hold, left or right turns</td><td><kbd>Z</kbd> <kbd>C</kbd></td><td><kbd>[</kbd> <kbd>]</kbd></td><td><kbd>1</kbd> <kbd>3</kbd></td></tr>
+      <tr><td>say heading and height</td><td><kbd>Q</kbd></td><td><kbd>/</kbd></td><td><kbd>9</kbd></td></tr>
+      <tr><td>send; at height 0, clear to land</td><td><kbd>E</kbd></td><td><kbd>Enter</kbd></td><td><kbd>7</kbd> <kbd>Enter</kbd></td></tr>
+      <tr><td>fast time, while held</td><td><kbd>Space</kbd></td><td><kbd>Space</kbd> <kbd>.</kbd></td><td><kbd>0</kbd></td></tr>
       </table>
       <table>
-      <tr><td><kbd>Enter</kbd></td><td>send the command; at height 0 that is the landing clearance</td></tr>
+      <tr><td><kbd>Space</kbd></td><td>only ever runs the clock, whatever has the focus; a focused button is pressed with <kbd>Enter</kbd></td></tr>
       <tr><td><kbd>Esc</kbd></td><td>cancel, deselect (MENU in the header leaves the shift; it waits)</td></tr>
       <tr><td><kbd>Tab</kbd> <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>the next plane down the board, or up; inside the command panel, the next button</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>1</kbd>…<kbd>9</kbd></td><td>put the selected plane on that digit (Ctrl works too, where the browser leaves it alone); the digit shows by its letter</td></tr>
@@ -1776,14 +1777,14 @@ function renderStanding() {
 const COACH = [
   "",
   'Your first plane. <span class="kb">Click it, or press <kbd>Tab</kbd>.</span><span class="tp">Tap it, or its strip on the board.</span>',
-  '<span class="kb"><kbd>←</kbd> <kbd>→</kbd> turn it, <kbd>↑</kbd> <kbd>↓</kbd> set its height, <kbd>Enter</kbd> sends.</span><span class="tp">Pick a heading and a height, then Send.</span> Height <b>0</b> clears it to land.',
+  () => `<span class="kb"><kbd>${hint("hdgL")}</kbd> <kbd>${hint("hdgR")}</kbd> turn it, <kbd>${hint("altUp")}</kbd> <kbd>${hint("altDown")}</kbd> set its height, <kbd>${hint("send", true)}</kbd> sends.</span><span class="tp">Pick a heading and a height, then Send.</span> Height <b>0</b> clears it to land.`,
   "Arrivals fly to the VOR and hold there on their own: stack them at different heights, then clear one at a time. Overflights must leave at <b>4,000</b>.",
 ];
 function coach(step) {
   ui.coach = step;
   clearTimeout(ui.coachTimer);
   if (!step || step >= COACH.length) { $("coach").hidden = true; if (step) { prefs.coached = true; save(KEY_PREFS, prefs); } return; }
-  $("coach-text").innerHTML = COACH[step]; $("coach").hidden = false;
+  const c = COACH[step]; $("coach-text").innerHTML = typeof c === "function" ? c() : c; $("coach").hidden = false;
   if (step === 3) ui.coachTimer = setTimeout(() => coach(4), 30000);
 }
 function speedNow() { return loop.fast ? 4 : (replay ? Math.max(2, prefs.speed) : prefs.speed); }
@@ -2195,7 +2196,7 @@ function renderStrips() {
 }
 $("strip-list").addEventListener("click", e => { const s = e.target.closest(".strip"); if (s && !s.classList.contains("pending")) select(s.dataset.id); });
 $("strip-list").addEventListener("keydown", e => {
-  const s = e.target.closest(".strip"); if (!s || s.classList.contains("pending") || (e.key !== "Enter" && e.key !== " ")) return;
+  const s = e.target.closest(".strip"); if (!s || s.classList.contains("pending") || e.key !== "Enter") return;
   e.preventDefault(); e.stopPropagation(); select(s.dataset.id, true);
 });
 
@@ -2213,7 +2214,7 @@ function select(id, toPanel) {
 }
 function renderPanel() {
   const el = $("panel"), p = ui.sel && find(S, ui.sel), sec = SECTORS[S.sector];
-  if (!p) { el.innerHTML = `<h3>Command</h3><div class="sel-none"><span class="kb">Click a plane or its strip, or <kbd>Tab</kbd> down the board.<br>Heading and height go together; <kbd>Enter</kbd> sends.</span><span class="tp">Tap a plane or its strip.<br>Heading and height go together; Send sends them.</span></div>`; return; }
+  if (!p) { el.innerHTML = `<h3>Command</h3><div class="sel-none"><span class="kb">Click a plane or its strip, or <kbd>Tab</kbd> down the board.<br>Heading and height go together; <kbd>${hint("send", true)}</kbd> sends.</span><span class="tp">Tap a plane or its strip.<br>Heading and height go together; Send sends them.</span></div>`; return; }
   const cmp = ["NW", "N", "NE", "W", "", "E", "SW", "S", "SE"], hdgOf = { NW: 7, N: 0, NE: 1, E: 2, SE: 3, S: 4, SW: 5, W: 6 };
   const onFinal = p.mode === "final";
   const kind = { arr: "arrival", dep: "departure", tra: "overflight, out at 4,000" }[p.kind];
@@ -2224,10 +2225,10 @@ function renderPanel() {
       <div class="compass" role="group" aria-label="Heading">${cmp.map(c => c ? `<button data-h="${hdgOf[c]}" class="${ui.h === hdgOf[c] ? "on" : ""}" aria-pressed="${ui.h === hdgOf[c]}" ${onFinal ? "disabled" : ""}>${c}</button>` : `<div class="mid" aria-live="polite">${ui.alt === 0 ? "LAND<br>" + esc(sec.airports[landingAt(p)].code) : HDG[ui.h] + "<br>" + ui.alt + ",000"}</div>`).join("")}</div>
       <div class="alts" role="group" aria-label="Height">${[5, 4, 3, 2, 1, 0].map(a => `<button data-alt="${a}" class="${ui.alt === a ? "on" : ""}" aria-pressed="${ui.alt === a}" ${onFinal || (a === 0 && p.mode === "ground") ? "disabled" : ""}>${a === 0 ? "0 · land" : a + ",000"}</button>`).join("")}</div>
       <div class="acts">
-        <button data-act="send" class="primary" ${onFinal ? "disabled" : ""}>${p.mode === "ground" ? "Takeoff" : ui.alt === 0 ? "Clear to land" : "Send"} <kbd class="hint">⏎</kbd></button>
-        <button data-act="holdL" ${p.mode === "ground" || onFinal ? "disabled" : ""} title="Hold, left turns at the VOR">Hold L <kbd class="hint">[</kbd></button>
-        <button data-act="holdR" ${p.mode === "ground" || onFinal ? "disabled" : ""} title="Hold, right turns at the VOR">Hold R <kbd class="hint">]</kbd></button>
-        <button data-act="status" ${p.mode === "ground" ? "disabled" : ""} title="Ask the pilot for heading and height">Say <kbd class="hint">/</kbd></button>
+        <button data-act="send" class="primary" ${onFinal ? "disabled" : ""}>${p.mode === "ground" ? "Takeoff" : ui.alt === 0 ? "Clear to land" : "Send"} <kbd class="hint">${hint("send")}</kbd></button>
+        <button data-act="holdL" ${p.mode === "ground" || onFinal ? "disabled" : ""} title="Hold, left turns at the VOR">Hold L <kbd class="hint">${hint("holdL")}</kbd></button>
+        <button data-act="holdR" ${p.mode === "ground" || onFinal ? "disabled" : ""} title="Hold, right turns at the VOR">Hold R <kbd class="hint">${hint("holdR")}</kbd></button>
+        <button data-act="status" ${p.mode === "ground" ? "disabled" : ""} title="Ask the pilot for heading and height">Say <kbd class="hint">${hint("status")}</kbd></button>
         <button data-act="cancel">Cancel <kbd class="hint">Esc</kbd></button>
       </div>
     </div>`; });
@@ -2318,30 +2319,42 @@ function konami() {
     " Every facility and every shift is open to you. A shift in progress keeps the rank it started with.", "Clearance granted");
 }
 
-/* ---- keys: one hand on the mouse, the other on the keys. Three layouts
-   do the same things, by physical key (e.code), so the numpad works with
-   Num Lock either way: the arrows with [ ] and /, the numpad's 8 4 5 6 with
-   7 9 and 0, and WASD with Q R and F. Enter sends, Esc cancels, Tab walks
-   the board. Letters not in any layout are the planes'. ---- */
-const KEYS = {
-  ArrowUp: "altUp", KeyW: "altUp", Numpad8: "altUp",
-  ArrowDown: "altDown", KeyS: "altDown", Numpad5: "altDown", Numpad2: "altDown",
-  ArrowLeft: "hdgL", KeyA: "hdgL", Numpad4: "hdgL",
-  ArrowRight: "hdgR", KeyD: "hdgR", Numpad6: "hdgR",
-  BracketLeft: "holdL", KeyQ: "holdL", Numpad7: "holdL",
-  BracketRight: "holdR", KeyR: "holdR", Numpad9: "holdR",
-  Slash: "status", KeyF: "status", Numpad0: "status",
-  Enter: "send", NumpadEnter: "send",
-  Space: "fast", Period: "fast", NumpadMultiply: "fast",
+/* ---- keys: one hand on the mouse, the other on the keys, whichever hand
+   that is. Three layouts do the same things, by physical key (e.code), so
+   the numpad works with Num Lock either way. The left hand sits on WASD,
+   with Z and C below it for the holds, Q above for Say and E for Send; the
+   right hand on the arrows with [ ] / and Enter, or on the numpad as the
+   left hand mirrored: 1 3 hold, 7 sends, 9 says, 0 runs the clock. Space
+   only ever runs the clock. Esc cancels, Tab walks the board. The panel's
+   hints follow the layout last used. ---- */
+const LAYOUTS = {
+  left:   { hdgL: "KeyA", hdgR: "KeyD", altUp: "KeyW", altDown: "KeyS", holdL: "KeyZ", holdR: "KeyC", status: "KeyQ", send: "KeyE", fast: "Space" },
+  arrows: { hdgL: "ArrowLeft", hdgR: "ArrowRight", altUp: "ArrowUp", altDown: "ArrowDown", holdL: "BracketLeft", holdR: "BracketRight", status: "Slash", send: "Enter", fast: "Space" },
+  numpad: { hdgL: "Numpad4", hdgR: "Numpad6", altUp: "Numpad8", altDown: "Numpad5", holdL: "Numpad1", holdR: "Numpad3", status: "Numpad9", send: "Numpad7", fast: "Numpad0" },
 };
+/* code → action, with a few aliases; code → the one layout it belongs to,
+   null for a key two layouts share */
+const KEYS = { Numpad2: "altDown", NumpadEnter: "send", Period: "fast" }, KEY_LAYOUT = { Numpad2: "numpad", NumpadEnter: "numpad" };
+for (const l in LAYOUTS) for (const a in LAYOUTS[l]) {
+  const c = LAYOUTS[l][a]; KEYS[c] = a;
+  KEY_LAYOUT[c] = c in KEY_LAYOUT ? null : l;
+}
+if (!LAYOUTS[prefs.layout]) prefs.layout = "left";
+const GLYPH = { Space: "Space", ArrowUp: "↑", ArrowDown: "↓", ArrowLeft: "←", ArrowRight: "→", BracketLeft: "[", BracketRight: "]", Enter: "⏎", NumpadEnter: "⏎", Slash: "/", NumpadMultiply: "*" };
+const glyph = (c, long) => long && /Enter$/.test(c) ? "Enter" : GLYPH[c] || c.replace(/^Key|^Numpad/, "");
+/* the key for an action in the layout last used, for the hints */
+const hint = (a, long) => glyph(LAYOUTS[prefs.layout][a], long);
 document.addEventListener("keydown", e => {
   if (sheet) { if (e.key === "Escape") { e.preventDefault(); closeSheet(); } else if (sheet.onKey && !e.ctrlKey && !e.metaKey && !e.altKey) sheet.onKey(e); return; }
   if (titleOpen) { if (!e.ctrlKey && !e.metaKey && !e.altKey) titleKey(e); return; }
   if (!S || !loop.running) return;
-  /* a button in the header or the panel has the focus: Tab and Space are
+  /* Space only ever runs the clock, whatever has the focus: a button it
+     would otherwise press is Enter's */
+  if (KEYS[e.code] === "fast" && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); loop.fast = true; return; }
+  /* a button in the header or the panel has the focus: Tab and Enter are
      the browser's there, and walk or press the buttons */
   const onButton = e.target.closest && e.target.closest("#hud, #panel, #scope-wrap button");
-  if (onButton && (e.key === "Tab" || ((e.key === "Enter" || e.code === "Space") && e.target.tagName === "BUTTON"))) return;
+  if (onButton && (e.key === "Tab" || (e.key === "Enter" && e.target.tagName === "BUTTON"))) return;
   /* quick keys, the way an RTS does its groups: Ctrl (or Shift) and a digit
      on the top row puts the selected plane on that digit; the digit alone
      selects it. The numpad's digits stay controls. */
@@ -2360,13 +2373,15 @@ document.addEventListener("keydown", e => {
   if (k === "h" || k === "?") { showHelp(); return; }
   if (k === "l") { toggleAids(); return; }
   if (k === "p" || k === "Pause") { e.preventDefault(); togglePause(); return; }
-  if (a === "fast") { e.preventDefault(); loop.fast = true; return; }
   /* Esc only ever deselects: leaving the shift is MENU's, which saves it */
   if (k === "Escape") { if (ui.sel) select(null); return; }
   if (k === "Tab") { e.preventDefault(); cycle(e.shiftKey ? -1 : 1); return; }
-  if (replay) return;
+  if (replay || !a) return;
+  /* the hints follow the hand on the keys */
+  const l = KEY_LAYOUT[e.code];
+  if (l && l !== prefs.layout) { prefs.layout = l; save(KEY_PREFS, prefs); renderPanel(); if (ui.coach === 2) coach(2); }
   const p = ui.sel && find(S, ui.sel);
-  if (!p || !a) return;
+  if (!p) return;
   e.preventDefault();
   if (a === "hdgL") { ui.h = (ui.h + 7) % 8; renderPanel(); }
   else if (a === "hdgR") { ui.h = (ui.h + 1) % 8; renderPanel(); }
@@ -2374,7 +2389,7 @@ document.addEventListener("keydown", e => {
   else if (a === "altDown") { ui.alt = Math.max(p.mode === "ground" ? 1 : 0, ui.alt - 1); renderPanel(); }
   else act(a);
 });
-document.addEventListener("keyup", e => { if (KEYS[e.code] === "fast") loop.fast = false; });
+document.addEventListener("keyup", e => { if (KEYS[e.code] === "fast") { loop.fast = false; if (S && loop.running) e.preventDefault(); } });
 /* Tab: the next plane down the board that can take a command; Shift-Tab, up */
 function cycle(dir) {
   const list = S.planes.filter(p => p.mode !== "pending");
