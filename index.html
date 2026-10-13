@@ -60,34 +60,60 @@ a { color: var(--steel); }
 #hud .clock { font-size: 20px; font-weight: 600; letter-spacing: .08em; color: var(--accent); min-width: 7.5ch; font-variant-numeric: tabular-nums; }
 #hud .where { color: var(--ink); font-size: 12px; line-height: 1.3; }
 #hud .where b { color: var(--text); font-weight: 600; }
-#lamps { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
-.lamp { font-size: 10px; letter-spacing: .08em; padding: 3px 6px; border: 1px solid var(--line); border-radius: 2px; color: var(--line); background: var(--bg); transition: color .15s, border-color .15s, background .15s; }
-.lamp.lit { color: var(--bg); background: var(--danger); border-color: var(--danger); font-weight: 600; animation: lamp .5s steps(2) infinite; }
-.lamp.lit.amber { background: var(--warn); border-color: var(--warn); }
-@keyframes lamp { 50% { opacity: .55; } }
+/* the shift's standing: conflict seconds against the 30 s that still gets a
+   promotion and the minute that ends a career, delay against 45 minutes */
+#standing { flex: 1; display: flex; align-items: baseline; gap: 6px; font-size: 11px; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#standing .k { letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+#standing .k + b { margin-right: 10px; }
+#standing b { font-size: 13px; color: var(--text); font-weight: 600; }
+#standing b.near { color: var(--warn); }
+#standing b.over { color: var(--danger); }
 #hud .btns { display: flex; gap: 6px; }
-#hud .btns button { padding: 4px 9px; font-size: 12px; }
+#hud .btns button { padding: 4px 9px; font-size: 12px; min-width: 32px; }
+#hud .btns button[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+#btn-fast.on { color: var(--bg); background: var(--warn); border-color: var(--warn); }
 #speed { color: var(--warn); font-size: 11px; display: none; }
 #speed.on { display: inline; }
 
-#main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(380px, 30vw, 480px); }
+#main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 27vw, 440px); }
 #left { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-#radio { padding: 6px 12px; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.45; min-height: 46px; }
+/* the scope fills the left pane, anchored to the bottom; the radio and the
+   alarm lamps sit in the band above it, the room the 40:24 scope leaves */
+#scope-wrap { flex: 1; min-height: 0; position: relative; display: grid; place-items: center; padding: 8px; background: var(--bg); }
+#band { position: absolute; top: 0; left: 0; right: 0; padding: 6px 12px 4px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+#radio { font-size: 13px; line-height: 1.45; min-height: 38px; }
 #radio .ctl { color: var(--accent); }
 #radio .pilot { color: var(--text); }
 #radio .pilot.em { color: var(--warn); }
 #radio .who { display: inline-block; width: 4ch; color: var(--dim); font-size: 11px; }
-#scope-wrap { flex: 1; min-height: 0; position: relative; display: grid; place-items: center; padding: 8px; background: var(--bg); }
+#lamps { display: flex; gap: 4px; flex-wrap: wrap; }
+.lamp { font-size: 11px; letter-spacing: .08em; padding: 2px 6px; border: 1px solid var(--line); border-radius: 2px; color: var(--dim); background: var(--bg); transition: color .15s, border-color .15s, background .15s; }
+.lamp.lit { color: var(--bg); background: var(--danger); border-color: var(--danger); font-weight: 600; animation: lamp .5s steps(2) infinite; }
+.lamp.lit.amber { background: var(--warn); border-color: var(--warn); }
+@keyframes lamp { 50% { opacity: .55; } }
 #scope { display: block; background: var(--scope); border: 1px solid var(--line); border-radius: 2px; touch-action: none; max-width: 100%; max-height: 100%; }
 #banner { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); padding: 6px 14px; background: rgba(5,7,15,.85); border: 1px solid var(--warn); color: var(--warn); letter-spacing: .2em; font-size: 12px; pointer-events: none; display: none; }
 #banner.on { display: block; }
+/* the two notes over the scope: a career-ending error, and the coach on a
+   first shift */
+#notice, #coach { position: absolute; left: 50%; transform: translateX(-50%); max-width: min(560px, calc(100% - 32px)); padding: 8px 12px; font-size: 12px; line-height: 1.5; background: rgba(5,7,15,.92); border-radius: 2px; }
+#notice { bottom: 20px; border: 1px solid var(--danger); color: var(--text); white-space: nowrap; }
+#notice b { color: var(--danger); }
+#notice button { padding: 2px 8px; font-size: 12px; margin-left: 2px; border-color: var(--danger); }
+#coach { bottom: 20px; border: 1px solid var(--accent); color: var(--text); display: flex; gap: 10px; align-items: start; }
+#coach kbd { color: var(--accent); border-color: var(--lit); }
+#coach button { padding: 0 6px; font-size: 16px; line-height: 1.2; }
+#notice[hidden], #coach[hidden] { display: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 #right { display: flex; flex-direction: column; min-height: 0; border-left: 1px solid var(--line); background: var(--panel); }
 #strips { flex: 1; min-height: 80px; overflow-y: auto; padding: 6px; }
 #strips h3, #panel h3 { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); font-weight: 600; padding: 2px 4px 6px; }
 .strip { display: grid; grid-template-columns: 34px 1fr auto; gap: 3px 10px; align-items: center; padding: 8px 10px; margin-bottom: 5px; border: 1px solid var(--line); border-radius: 2px; background: var(--bg); cursor: pointer; font-size: 15px; }
 .strip:hover { border-color: var(--lit); }
+.strip:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .strip.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.strip.warn { border-color: var(--warn); }
 .strip.pending { opacity: .45; cursor: default; }
 .strip .id { font-size: 26px; font-weight: 700; color: var(--accent); grid-row: span 2; text-align: center; }
 .strip.puma .id { color: var(--violet); }
@@ -99,31 +125,41 @@ a { color: var(--steel); }
 .strip .st { text-align: right; font-size: 12px; letter-spacing: .06em; color: var(--dim); }
 .strip .st.warn { color: var(--warn); font-weight: 600; }
 .strip .st.good { color: var(--good); }
+.strip .st.bad { color: var(--danger); font-weight: 600; }
 .strip.conf { border-color: var(--danger); }
 .strip.em .call { color: var(--warn); }
 
 #panel { border-top: 1px solid var(--line); padding: 8px; }
 #panel .sel-none { color: var(--dim); font-size: 12px; padding: 6px 4px 10px; line-height: 1.5; }
-#panel .who { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 0 4px 6px; }
-#panel .who b { font-size: 15px; color: var(--text); }
-#panel .who span { color: var(--ink); font-size: 11px; }
-#panel .now { display: flex; gap: 12px; padding: 0 4px 8px; font-size: 11px; color: var(--ink); flex-wrap: wrap; }
+/* the panel's rows keep their height: a longer status or callsign is cut,
+   never wrapped, so the board above does not jump as the shift goes on */
+#panel .who { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; padding: 0 4px 4px; }
+#panel .who b { font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#panel .who span { color: var(--ink); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#panel .who .hotkey { color: var(--dim); font-size: 10px; text-align: right; }
+#panel .who .route { grid-column: 1 / -1; }
+#panel .now { display: flex; gap: 12px; padding: 0 4px 8px; font-size: 11px; color: var(--ink); white-space: nowrap; overflow: hidden; }
 #panel .now b { color: var(--text); font-weight: 600; }
 #panel .now .fuel.low { color: var(--warn); }
-.cmd { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; }
+.cmd { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; align-items: start; }
 .compass { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 3px; }
 .compass button { padding: 0; font-size: 12px; min-height: 0; }
 .compass .mid { display: grid; place-items: center; font-size: 11px; color: var(--accent); border: 1px solid var(--line); border-radius: 2px; background: var(--bg); line-height: 1.2; text-align: center; }
-.alts { display: grid; grid-template-columns: repeat(2, 40px); gap: 3px; }
-.alts button { padding: 0; height: 40px; }
-.acts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-.acts button { font-size: 11px; padding: 6px 8px; flex: 1 1 auto; }
-.acts button.primary { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+/* the heights, one column top-down like the bars under a plane, so up is
+   up on the keys, on the glyph and here */
+.alts { display: grid; grid-template-columns: 58px; gap: 3px; }
+.alts button { padding: 0; height: 32px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.alts button[data-alt="0"] { color: var(--good); }
+.alts button[data-alt="0"].on { color: var(--bg); background: var(--good); border-color: var(--good); }
+.acts { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.acts button { font-size: 11px; padding: 6px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acts button.primary { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; height: 40px; }
 .acts button.primary:hover:not(:disabled) { background: #8af6ff; border-color: #8af6ff; }
-.acts .spacer { flex-basis: 100%; height: 0; }
-#log { max-height: 120px; overflow-y: auto; border-top: 1px solid var(--line); padding: 6px 10px; font-size: 11px; line-height: 1.5; color: var(--dim); }
+.acts button.primary kbd { color: var(--bg); border-color: rgba(5,7,15,.35); }
+#log { height: 100px; overflow-y: auto; border-top: 1px solid var(--line); padding: 6px 10px; font-size: 11px; line-height: 1.5; color: var(--dim); }
 #log .ctl { color: var(--accent); opacity: .8; }
 #log .alarm { color: var(--danger); }
+#log .sys { color: var(--ink); }
 #log .pilot { color: var(--ink); }
 
 /* ---- the title screen (greykit.games canon: the @gk-title script) and
@@ -150,35 +186,50 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
 .report .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); font-weight: 600; }
 .report .bad { color: var(--danger); }
 .report .good { color: var(--good); }
-.verdict { font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.verdict { font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 4px; }
 .verdict.bad { color: var(--danger); }
+.verdict.up { font-size: 22px; color: var(--good); letter-spacing: .16em; }
+.verdict.bad.out { font-size: 20px; }
+.why { color: var(--ink); margin: 0 0 14px; }
+.row.quiet { margin-top: 6px; }
+.row.quiet button { color: var(--dim); }
+.gk-title .gk-sub { margin: 10px 0 0; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--dim); text-align: center; padding-left: .3em; }
+.facility button b .rec { color: var(--good); font-weight: 400; font-size: 11px; margin-left: 6px; }
 .facility { display: grid; grid-template-columns: 1fr; gap: 6px; margin: 0 0 10px; }
 .facility button { text-align: left; display: flex; gap: 10px; align-items: baseline; padding: 8px 10px; }
 .facility button b { min-width: 16ch; color: var(--text); }
 .facility button span { color: var(--dim); font-size: 11px; }
-.facility button:disabled span { color: var(--line); }
+.facility button:disabled { opacity: .55; }
+.facility button:disabled span { color: var(--dim); }
 .ladder td { padding: 2px 10px 2px 0; }
 .ladder td.me { color: var(--accent); font-weight: 600; }
 
-/* ---- phones ---- */
+/* ---- phones: the band goes back into the flow above the scope, and the
+   scope keeps a readable mile (14px) and pans sideways when the screen is
+   narrower than that ---- */
 @media (max-width: 860px) {
-  #main { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; overflow-y: auto; }
+  #main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; overflow-y: auto; }
   #left { min-height: 0; }
-  #scope-wrap { padding: 4px; min-height: 0; }
-  #scope { width: 100% !important; height: auto !important; }
+  #scope-wrap { padding: 4px; min-height: 0; display: block; overflow-x: auto; touch-action: pan-x pan-y; scrollbar-width: none; }
+  #band { position: sticky; left: 0; width: 100%; padding: 4px 8px; pointer-events: auto; }
+  #radio { min-height: 0; font-size: 12px; }
+  #scope { max-width: none; max-height: none; touch-action: pan-x pan-y; }
   #right { border-left: 0; border-top: 1px solid var(--line); }
   #strips { max-height: 220px; }
-  #log { max-height: 90px; }
-  #hud { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 8px; padding: 6px 8px; }
+  #log { height: 90px; }
+  #hud { gap: 6px 10px; padding: 6px 8px; }
   #hud .where { display: none; }
-  #lamps { grid-column: 1 / -1; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  .lamp { font-size: 9px; padding: 2px 4px; flex: none; }
+  #hud .btns { margin-left: auto; }
+  .lamp { padding: 2px 5px; }
   .compass { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); }
-  .alts { grid-template-columns: repeat(3, 46px); }
-  .alts button { height: 46px; }
-  kbd.hint { display: none; }
+  .alts { grid-template-columns: 64px; }
+  .alts button { height: 38px; }
+  #notice, #coach { position: sticky; left: 8px; transform: none; max-width: none; margin: 6px 4px 0; }
 }
-@media (pointer: coarse) { .acts button { padding: 10px 8px; } }
+/* without a keyboard the key hints go, whole phrases at a time, so what is
+   left still reads as a sentence; .tp is the touch wording in their place */
+.tp { display: none; }
+@media (pointer: coarse) { .acts button { padding: 10px 8px; } .kb, kbd.hint { display: none; } .tp { display: inline; } }
 @media (prefers-reduced-motion: reduce) { .lamp.lit { animation: none; } }
 </style>
 </head>
@@ -188,9 +239,14 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
   <header id="hud">
     <span class="clock" id="clock">10:00:00</span>
     <span class="where" id="where"></span>
-    <div id="lamps" aria-live="polite"></div>
+    <div id="standing" title="Under 30 seconds of conflict on the shift to be promoted; over a minute, or 45 minutes of delay, and you are fired">
+      <span class="k">conflict</span> <b id="st-conf">0 s</b><span class="k">delay</span> <b id="st-delay">0 min</b>
+    </div>
     <span id="speed">▶▶ FAST</span>
     <div class="btns">
+      <button id="btn-pause" aria-label="Pause" aria-pressed="false" title="Pause (P)">⏸</button>
+      <button id="btn-fast" aria-label="Fast time, while held" title="Fast time, while held (Space)">▶▶</button>
+      <button id="btn-aids" aria-label="Scope aids" aria-pressed="false" title="Scope aids: Learning or Classic (L)">LEARN</button>
       <button id="btn-help" aria-label="Help" title="Help (H)">?</button>
       <button id="mute-btn" aria-label="Sound" aria-pressed="true" title="Sound (M)">♪</button>
       <button id="btn-menu" aria-label="Menu" title="Back to the title screen. The shift waits.">MENU</button>
@@ -198,8 +254,16 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
   </header>
   <div id="main">
     <div id="left">
-      <div id="radio" aria-live="polite"><div class="ctl"><span class="who">ATC</span><span id="radio-ctl"></span></div><div class="pilot"><span class="who">PLT</span><span id="radio-pilot"></span></div></div>
-      <div id="scope-wrap"><canvas id="scope" width="1000" height="600" role="img" aria-label="Radar scope"></canvas><div id="banner"></div></div>
+      <div id="scope-wrap">
+        <div id="band">
+          <div id="radio" aria-live="polite"><div class="ctl"><span class="who">ATC</span><span id="radio-ctl"></span></div><div class="pilot"><span class="who">PLT</span><span id="radio-pilot"></span></div></div>
+          <div id="lamps" aria-hidden="true"></div>
+        </div>
+        <canvas id="scope" width="1000" height="600" role="img" aria-label="Radar scope"></canvas>
+        <div id="banner"></div>
+        <div id="notice" hidden><b>This shift ends your career.</b> Work it to the hour for the pay, or <button data-act="endnow">end it now</button></div>
+        <div id="coach" hidden><span id="coach-text"></span><button data-act="coach-x" aria-label="Dismiss">&times;</button></div>
+      </div>
     </div>
     <div id="right">
       <div id="strips"><h3>Flight plans</h3><div id="strip-list"></div></div>
@@ -207,6 +271,7 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
       <div id="log" aria-live="off"></div>
     </div>
   </div>
+  <div id="sr" class="sr-only" role="status" aria-live="assertive"></div>
 </div>
 <div id="title" hidden></div>
 <script>
@@ -837,7 +902,11 @@ function makeFlight(S) {
   const sec = SECTORS[S.sector];
   const id = nextLetter(S);
   if (!id) return null;
-  const kind = pick(S, sec.mix);
+  /* the shift's first flight: on the air in 15 seconds, not a minute, so
+   * the scope is never empty for long; on a Trainee shift it is an arrival,
+   * the one kind that flies itself to the VOR and waits to be taught on */
+  const first = !Object.keys(S.nums).length;
+  const kind = first && S.shift === 0 ? "arr" : pick(S, sec.mix);
   let al;
   const r = rnd(S);
   if (sec.ssc && r < sec.ssc && kind !== "tra") al = "AF";
@@ -866,7 +935,7 @@ function makeFlight(S) {
     id, al, num, cls, kind, from, to, toAp, landAp: null, apIdx: null,
     x: 0, y: 0, px: 0, py: 0, h: 0, alt: 5, th: null, talt: null, tdir: 0,
     mode: "pending", holdDir: 1, nav: null, pat: 0, period: CLASSES[cls].period, phase: 0,
-    posted: S.t, enter: S.t + TPM, fuel: (kind === "arr" ? 15 : 60) * TPM, emergency: false,
+    posted: S.t, enter: S.t + (first ? 2 : TPM), fuel: (kind === "arr" ? 15 : 60) * TPM, emergency: false,
     budget: 0, delay: 0, cmds: 0, conf: -99, next: null,
   };
   if (fromFix) {
@@ -1176,17 +1245,44 @@ function tally(S) {
   const delayMin = (S.delayTicks + S.delayPuma) / TPM;        /* Puma's minutes count twice */
   const bonusRaw = 100 * (completions + c.pumaDone - c.badexit - Math.floor(delayMin) + 2 * c.emland);
   const major = c.crash + c.badexit + c.emexit;
+  /* a promotion is earned by working traffic: a shift that handed off
+   * nothing is not a clean record, it is an empty one */
   return {
     ...c, completions, conflictSec, delayMin, major,
     bonus: Math.max(0, bonusRaw),
     salary: (S.rank + 1) * 500,
-    perfect: major === 0 && S.conflictTicks === 0 && S.delayTicks === 0,
-    promoted: major === 0 && conflictSec < 30 && S.rank < MAX_RANK,
+    perfect: completions > 0 && major === 0 && S.conflictTicks === 0 && S.delayTicks === 0,
+    promoted: completions > 0 && major === 0 && conflictSec < 30 && S.rank < MAX_RANK,
     fired: S.rank > 1 && (major > 0 || conflictSec > 60 || delayMin >= 45),
   };
 }
 
-const Engine = { ACK, ACK_S, SECTORS, SHIFTS, DIRS, HDG, TPM, MAX_RANK, AIRLINES, CLASSES, LETTERS, VOR_D, IAF_D, STORM_SHAPE, gsOf, shiftFor, newShift, tick, command, tally, callsign, shortCall, vorOf, iafOf, lanes, inStorm, find, altText, turnDelta, bearing };
+/* ---- a look one dot ahead: the pairs that will have lost separation
+ * when each plane reaches its next dot, turning and climbing as it is
+ * going to. Read-only, so the scope can warn before the buzzer. Returns
+ * the letters of the planes in such a pair. ---- */
+function probe(S) {
+  const air = S.planes.filter(p => p.mode !== "pending" && p.mode !== "ground" && p.mode !== "done");
+  const ahead = air.map(p => {
+    let h = p.h, th = p.th, talt = p.talt;
+    /* a command taken in before the next dot takes hold there */
+    const n = p.next && p.next.c;
+    if (n && p.next.ready <= S.t + (p.period - p.phase) && n.op === "vector" && p.mode !== "final") { th = n.h; talt = n.alt; }
+    if (!p.climbout && !p.nav && th != null && th !== p.h) h = (h + (turnDelta(p.h, th) < 0 ? 7 : 1)) % 8;
+    let alt = p.alt;
+    if (p.climbout) alt = Math.max(1, alt);
+    else if (talt != null && talt !== alt) alt += talt > alt ? 1 : -1;
+    return { id: p.id, x: p.x + DIRS[h][0], y: p.y + DIRS[h][1], alt };
+  });
+  const out = new Set();
+  for (let i = 0; i < ahead.length; i++) for (let j = i + 1; j < ahead.length; j++) {
+    const a = ahead[i], b = ahead[j], d2 = dist2(a, b), da = Math.abs(a.alt - b.alt);
+    if (a.alt > 0 && b.alt > 0 && ((d2 < 9 && da < 1) || (d2 <= 2 && da < 2))) { out.add(a.id); out.add(b.id); }
+  }
+  return out;
+}
+
+const Engine = { ACK, ACK_S, SECTORS, SHIFTS, DIRS, HDG, TPM, MAX_RANK, AIRLINES, CLASSES, LETTERS, VOR_D, IAF_D, STORM_SHAPE, gsOf, shiftFor, newShift, tick, command, tally, probe, callsign, shortCall, vorOf, iafOf, lanes, inStorm, find, altText, turnDelta, bearing };
 /* @engine-end */
 
 /* ============================================================
@@ -1199,7 +1295,8 @@ const KEY_PREFS = "pumaapproach_prefs_v1";
 const KEY_MUTED = "pumaapproach_muted_v1";
 function load(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
 function save(key, v) { try { if (v == null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* no storage */ } }
-let prefs = Object.assign({ voice: true, speed: 1, aids: "classic" }, load(KEY_PREFS, {}));
+/* a new player gets the Learning scope; Classic, the 1985 one, is a choice */
+let prefs = Object.assign({ voice: true, speed: 1, aids: "learning", coached: false }, load(KEY_PREFS, {}));
 let career = load(KEY_CAREER, null);          /* { rank, total, shifts, skill } */
 let careerLog = load(KEY_LOG, []);            /* every shift worked, newest last */
 const $ = id => document.getElementById(id);
@@ -1405,6 +1502,8 @@ function openTitle() {
   titleOpen = true;
   const el = $("title");
   el.innerHTML = titleHTML(titleCfg());
+  /* the game's own line under the canon name: what this is, in five words */
+  el.querySelector("h1").insertAdjacentHTML("afterend", '<p class="gk-sub">Approach control on a 1985 scope</p>');
   el.hidden = false;
   document.body.classList.add("on-title");
   $("game").hidden = true;
@@ -1416,7 +1515,7 @@ function closeTitle() {
   $("title").hidden = true; $("title").innerHTML = "";
   document.body.classList.remove("on-title");
 }
-function toTitle() { closeSheet(); loop.running = false; Voice.clear(); openTitle(); revealTitle(); }
+function toTitle() { closeSheet(); if (S && loop.running && !replay && !S.over) save(KEY_SHIFT, S); loop.running = false; loop.fast = false; Voice.clear(); openTitle(); revealTitle(); }
 function refreshTitle() { if (!titleOpen) return; openTitle(); const b = document.querySelector("#title .gk-primary"); if (b) b.focus({ preventScroll: true }); }
 function titleAct(a) {
   if (a === "resume") { const s = shiftSaved(); if (s) startShift(s); return; }
@@ -1439,7 +1538,7 @@ function titleKey(e) {
 $("title").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (b) titleAct(b.dataset.act); });
 
 /* ---- sheets: the title block's look, from any screen ---- */
-function openSheet(title, { tabs, html, onClick, onClose, tab = 0 }) {
+function openSheet(title, { tabs, html, onClick, onClose, onKey, tab = 0 }) {
   closeSheet();
   const el = document.createElement("div");
   el.className = "gk-sheet"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", title);
@@ -1459,7 +1558,7 @@ function openSheet(title, { tabs, html, onClick, onClose, tab = 0 }) {
     if (onClick) onClick(b, api);
   });
   document.body.appendChild(el);
-  sheet = { el, onClose, back };
+  sheet = { el, onClose, onKey, back };
   (el.querySelector("[autofocus]") || el.querySelector('[role="tab"][aria-selected="true"]') || el.querySelector("[data-x]")).focus();
   return api;
 }
@@ -1479,7 +1578,7 @@ function showSettings() {
     html: () => `
       <h3>Scope</h3>
       <div class="row">${pill(prefs.aids === "classic", "Classic", "aids:classic")}${pill(prefs.aids === "learning", "Learning", "aids:learning")}</div>
-      <p class="gk-note">Classic is the 1985 scope: while you set a command up, a line runs from the plane along the new heading. Learning adds where each command takes hold: a ring on the dot where the pilot will turn, and the heading from there, until the turn is done.</p>
+      <p class="gk-note">Classic is the 1985 scope: while you set a command up, a line runs from the plane along the new heading, and the buzzer is the first you hear of a conflict. Learning adds where each command takes hold, a ring on the dot where the pilot will turn with the heading from there, and warns in amber one dot before two planes lose separation. <kbd>L</kbd> switches it on the scope.</p>
       <h3>Voice</h3>
       <div class="row">${pill(prefs.voice, "On", "voice:1")}${pill(!prefs.voice, "Off", "voice:0")}</div>
       <p class="gk-note">Commands and readbacks are spoken, in the manner of the 1985 original: recorded words at four bits, spliced together. The text always shows.</p>
@@ -1530,8 +1629,9 @@ function showHelp(tab = 0) {
       <p>The shift ends on the hour. No crashes, no bad exits and under 30 seconds of conflict gets you promoted; a crash, a bad exit, over a minute of conflict or 45 minutes of delay ends your career. A GS-7 trainee is never fired.</p>
       <p class="gk-note">${CREDIT}</p>`],
     ["Commands", `
-      <p>Click a plane or its strip, or <kbd>Tab</kbd> down the board. <kbd>Ctrl</kbd>+<kbd>1</kbd>–<kbd>9</kbd> bookmarks the selected plane on a digit, as an RTS does its groups, and the digit alone brings it back. Pick a <b>heading</b> on the compass and a <b>height</b>, then <b>Send</b>. A command is always heading and height together, and the new one replaces the old. The pilot reads it back.</p>
-      <h3>When they act</h3><p>The pilot takes about four seconds to take a command in, then acts at the next dot. Sent just before a plane reaches a dot, it flies through that one and turns at the one after. A second command before the first is acted on replaces it; once the first is on the air, the controller says "correction". <b>Settings → Scope → Learning</b> marks the dot where each command will take hold.</p>
+      <p>Click a plane or its strip, or <kbd>Tab</kbd> down the board. <kbd>Shift</kbd>+<kbd>1</kbd>–<kbd>9</kbd> bookmarks the selected plane on a digit, as an RTS does its groups, and the digit alone brings it back. Pick a <b>heading</b> on the compass and a <b>height</b>, then <b>Send</b>. A command is always heading and height together, and the new one replaces the old. The pilot reads it back.</p>
+      <h3>When they act</h3><p>The pilot takes about four seconds to take a command in, then acts at the next dot. Sent just before a plane reaches a dot, it flies through that one and turns at the one after. A second command before the first is acted on replaces it; once the first is on the air, the controller says "correction". The <b>Learning</b> scope (<kbd>L</kbd>, or Settings) marks the dot where each command will take hold, and turns two planes amber one dot before they lose separation.</p>
+      <h3>Your standing</h3><p>The header counts the shift's <b>conflict</b> seconds and <b>delay</b> minutes as they happen: under 30 seconds of conflict is a promotion, over a minute is the end of a career, and so are a crash, a bad exit or 45 minutes of delay. A trainee is never fired.</p>
       <h3>Hold</h3><p>Right or left turns at the airport's VOR, eight miles round, at the height given. Arrivals do this on their own when they get there.</p>
       <h3>Land</h3><p>Height <b>0</b> is the landing clearance, as on the C64. An arrival lands at its own airport; an overflight or an emergency with none takes the runway the heading points down (National's is north, Dulles's east), or the nearest. The plane flies to the VOR, turns down the runway and descends 1,000 feet a mile. From 5,000 feet at the VOR that is the field exactly. Lower is fine; it rolls on to the runway. Once on the ground roll nothing can turn it.</p>
       <h3>Takeoff</h3><p>A departure on the board takes the heading and height you send as its clearance. It climbs from the runway, and it must not go while another plane is on short final.</p>
@@ -1557,10 +1657,11 @@ function showHelp(tab = 0) {
       </table>
       <table>
       <tr><td><kbd>Enter</kbd></td><td>send the command; at height 0 that is the landing clearance</td></tr>
-      <tr><td><kbd>Esc</kbd></td><td>cancel, deselect</td></tr>
-      <tr><td><kbd>Tab</kbd> <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>the next plane down the board, or up</td></tr>
-      <tr><td><kbd>Ctrl</kbd>+<kbd>1</kbd>…<kbd>9</kbd></td><td>put the selected plane on that digit (Shift works too); the digit shows by its letter</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>cancel, deselect (MENU in the header leaves the shift; it waits)</td></tr>
+      <tr><td><kbd>Tab</kbd> <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>the next plane down the board, or up; inside the command panel, the next button</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>1</kbd>…<kbd>9</kbd></td><td>put the selected plane on that digit (Ctrl works too, where the browser leaves it alone); the digit shows by its letter</td></tr>
       <tr><td><kbd>1</kbd>…<kbd>9</kbd></td><td>select the plane on that digit</td></tr>
+      <tr><td><kbd>L</kbd></td><td>scope aids: Learning or Classic</td></tr>
       <tr><td><kbd>P</kbd> <kbd>Pause</kbd></td><td>pause</td></tr>
       <tr><td><kbd>M</kbd></td><td>sound on or off</td></tr>
       <tr><td><kbd>H</kbd></td><td>this help</td></tr>
@@ -1576,10 +1677,17 @@ function showAbout() {
 }
 
 /* ---- the career ---- */
+/* a digit pressed in a picker presses its numbered button */
+function digitPick(e, attr) {
+  const d = /^Digit([1-9])$/.test(e.code) ? +e.code.slice(5) : 0;
+  const b = d && sheet && sheet.el.querySelector(`[${attr}="${d - (attr === "data-sec" ? 1 : 0)}"]`);
+  if (b && !b.disabled) { e.preventDefault(); b.click(); }
+}
 function showSkill() {
   openSheet("New career", { html: () => `
-    <p>Your skill level sets your starting rank. Trainees are never fired; everyone else is, after a crash or a bad exit.</p>
-    <div class="facility">${[1, 2, 3, 4, 5].map(k => `<button data-skill="${k}" ${k === 1 ? "autofocus" : ""}><b>Level ${k} · ${gsOf(k)}</b><span>${["Atlanta or Dallas, Trainee shift", "adds Denver and Washington", "adds New York", "Morning shifts", "Prime Time at Atlanta and Dallas"][k - 1]}</span></button>`).join("")}</div>`,
+    <p>Your skill level sets your starting rank. Trainees are never fired; everyone else is, after a crash or a bad exit. New to the scope? Take Level 1.</p>
+    <div class="facility">${[1, 2, 3, 4, 5].map(k => `<button data-skill="${k}" ${k === 1 ? "autofocus" : ""}><b>Level ${k} · ${gsOf(k)}${k === 1 ? '<span class="rec">recommended</span>' : ""}</b><span>${["Atlanta or Dallas, Trainee shift", "adds Denver and Washington", "adds New York", "Morning shifts", "Prime Time at Atlanta and Dallas"][k - 1]}</span></button>`).join("")}</div>`,
+    onKey: e => digitPick(e, "data-skill"),
     onClick: async (b) => {
       const k = +b.dataset.skill; if (!k) return;
       if (career && !await confirmSheet("Start over? Your career of " + money(career.total) + " at " + gsOf(career.rank) + " ends here. The career log keeps its shifts.", "Start a new career")) return;
@@ -1597,6 +1705,7 @@ function showFacility(practice) {
       <div class="row">${SHIFTS.map((s, i) => `<button data-sh="${i}" class="${i === pickSh ? "on" : ""}">${esc(s.name)} · ${s.min} min</button>`).join("")}</div>` :
       `<p><b>${gsOf(rank)}</b>, ${money(career.total)} so far. Each facility offers the shift your rank works there.</p>`}
     <div class="facility">${SECTORS.map((s, i) => { const sh = free ? pickSh : shiftFor(rank, i); return `<button data-sec="${i}" ${sh < 0 ? "disabled" : ""} ${i === 0 ? "autofocus" : ""}><b>${i + 1}. ${esc(s.name)}</b><span>${sh < 0 ? "not at this rank" : esc(SHIFTS[sh].name) + " · " + SHIFTS[sh].min + " min"}</span></button>`; }).join("")}</div>`,
+    onKey: e => digitPick(e, "data-sec"),
     onClick: (b, api) => {
       if (b.dataset.sh !== undefined) { pickSh = +b.dataset.sh; api.refresh(); return; }
       if (b.dataset.sec === undefined) return;
@@ -1623,23 +1732,59 @@ const TICK_MS = 7500;
 let S = null;                       /* the engine's state */
 let replay = null;                  /* { log, i } while an instant replay runs */
 const loop = { running: false, paused: false, speed: 1, fast: false, acc: 0, last: 0 };
-const ui = { sel: null, h: 0, alt: 5, lamps: {}, flash: {}, lastTally: null, conflictAt: -1e9, gone: [] };
+const ui = { sel: null, h: 0, alt: 5, lamps: {}, flash: {}, lastTally: null, conflictAt: -1e9, gone: [], warn: new Set(), wasConflict: false, doomed: false, coach: 0 };
 const LAMPS = ["EXIT FIX", "EXIT ALT", "AIRPORT", "CONFLICT", "MID-AIR", "CRASH", "LANDING", "EMERGENCY", "STORM"];
 
 function startShift(state, asReplay) {
   closeSheet(); closeTitle();
   S = state; replay = asReplay || null;
-  ui.sel = null; ui.lamps = {}; ui.gone = []; ui.lastTally = null;
+  ui.sel = null; ui.lamps = {}; ui.gone = []; ui.lastTally = null; ui.warn = new Set(); ui.wasConflict = false; ui.doomed = false; ui.coach = 0;
   $("game").hidden = false;
   $("lamps").innerHTML = LAMPS.map(l => `<span class="lamp" data-lamp="${l}">${l}</span>`).join("");
   $("radio-ctl").textContent = ""; $("radio-pilot").textContent = ""; $("log").innerHTML = "";
   $("where").innerHTML = `<b>${esc(SECTORS[S.sector].name)}</b> · ${esc(SHIFTS[S.shift].name)}<br>${S.practice ? "practice" : esc(gsOf(S.rank))}${replay ? " · replay" : ""}`;
   $("banner").className = replay ? "on" : ""; $("banner").textContent = replay ? "INSTANT REPLAY" : "";
+  $("notice").hidden = true; $("coach").hidden = true;
   Voice.clear();
-  if (!replay && S.t === 0) addLog("alarm", `${SECTORS[S.sector].name} approach, ${SHIFTS[S.shift].name} shift. Position open.`);
-  loop.acc = 0; loop.paused = false; loop.running = true; loop.last = performance.now();
+  if (!replay && S.t === 0) addLog("sys", `${SECTORS[S.sector].name} approach, ${SHIFTS[S.shift].name} shift. Position open.`);
+  loop.acc = 0; loop.paused = false; loop.fast = false; loop.running = true; loop.last = performance.now();
   if (!replay) save(KEY_SHIFT, S);
-  renderStrips(); renderPanel(); fitScope();
+  renderAids(); renderStanding(); renderStrips(); renderPanel(); fitScope();
+  /* the coach: a first shift, on a scope the player has never worked. It
+     speaks when the first plane does. */
+  if (!replay && !prefs.coached && !careerLog.length) ui.coach = 1;
+}
+/* one line to a screen reader, now: an alarm, a conflict, a verdict */
+function announce(text) { const el = $("sr"); el.textContent = ""; setTimeout(() => { el.textContent = text; }, 30); }
+function renderAids() {
+  const on = prefs.aids === "learning";
+  $("btn-aids").setAttribute("aria-pressed", on ? "true" : "false");
+  $("btn-aids").title = on ? "Scope aids: Learning. L for the 1985 scope" : "Scope aids: Classic, the 1985 scope. L for Learning";
+}
+function toggleAids() { prefs.aids = prefs.aids === "learning" ? "classic" : "learning"; save(KEY_PREFS, prefs); renderAids(); if (!S) return; if (prefs.aids !== "learning") ui.warn = new Set(); renderStrips(); }
+/* the shift's standing, against the lines the report will draw */
+function renderStanding() {
+  const sec = S.conflictTicks * 7.5, dm = (S.delayTicks + S.delayPuma) / TPM;
+  const c = $("st-conf"), d = $("st-delay");
+  c.textContent = sec >= 60 ? Math.floor(sec / 60) + " min " + Math.round(sec % 60) + " s" : Math.round(sec) + " s";
+  c.className = sec > 60 ? "over" : sec >= 30 ? "near" : "";
+  d.textContent = Math.floor(dm) + " min";
+  d.className = dm >= 45 ? "over" : dm >= 30 ? "near" : "";
+}
+/* the coach's three lines, on a first shift: the first plane, the first
+   command, and what the traffic does on its own */
+const COACH = [
+  "",
+  'Your first plane. <span class="kb">Click it, or press <kbd>Tab</kbd>.</span><span class="tp">Tap it, or its strip on the board.</span>',
+  '<span class="kb"><kbd>←</kbd> <kbd>→</kbd> turn it, <kbd>↑</kbd> <kbd>↓</kbd> set its height, <kbd>Enter</kbd> sends.</span><span class="tp">Pick a heading and a height, then Send.</span> Height <b>0</b> clears it to land.',
+  "Arrivals fly to the VOR and hold there on their own: stack them at different heights, then clear one at a time. Overflights must leave at <b>4,000</b>.",
+];
+function coach(step) {
+  ui.coach = step;
+  clearTimeout(ui.coachTimer);
+  if (!step || step >= COACH.length) { $("coach").hidden = true; if (step) { prefs.coached = true; save(KEY_PREFS, prefs); } return; }
+  $("coach-text").innerHTML = COACH[step]; $("coach").hidden = false;
+  if (step === 3) ui.coachTimer = setTimeout(() => coach(4), 30000);
 }
 function speedNow() { return loop.fast ? 4 : (replay ? Math.max(2, prefs.speed) : prefs.speed); }
 function frame(ts) {
@@ -1660,16 +1805,30 @@ function doTick() {
   let conflict = false;
   for (const e of ev) {
     if (e.type === "radio") { logRadio(e); Voice.say(e); }
-    else if (e.type === "alarm") { light(e.lamp, e.lamp === "STORM" || e.lamp === "EMERGENCY" || e.lamp === "LANDING"); addLog("alarm", e.text); play(e.lamp === "CRASH" || e.lamp === "MID-AIR" ? "crash" : "alarm"); }
+    else if (e.type === "alarm") { light(e.lamp, e.lamp === "STORM" || e.lamp === "EMERGENCY" || e.lamp === "LANDING"); addLog("alarm", e.text); announce(e.lamp + ": " + e.text); play(e.lamp === "CRASH" || e.lamp === "MID-AIR" ? "crash" : "alarm"); }
     else if (e.type === "conflict") conflict = true;
     else if (e.type === "strip") { play("strip"); }
     else if (e.type === "gone") { ui.gone.push({ x: e.x, y: e.y, at: performance.now(), bad: e.outcome !== "landed" && e.outcome !== "exited" && e.outcome !== "emland" }); if (e.outcome === "landed" || e.outcome === "exited" || e.outcome === "emland") play("done"); if (ui.sel === e.id) { ui.sel = null; } for (const d in S.hot) if (S.hot[d] === e.id) delete S.hot[d]; }
     else if (e.type === "end") endShift();
   }
-  if (conflict) { light("CONFLICT", false, true); if (performance.now() - ui.conflictAt > 480 / loop.speed) { ui.conflictAt = performance.now(); play("buzz"); } }
+  /* the Learning scope looks a dot ahead: the CONFLICT lamp in amber, and
+     the pair outlined, before separation is lost */
+  ui.warn = prefs.aids === "learning" && !S.over ? probe(S) : new Set();
+  if (conflict) {
+    light("CONFLICT", false, true);
+    if (performance.now() - ui.conflictAt > 480 / loop.speed) { ui.conflictAt = performance.now(); play("buzz"); }
+    if (!ui.wasConflict) announce("Conflict: " + S.planes.filter(p => S.t - p.conf < 2).map(p => p.id + " " + callsign(p)).join(" and "));
+  } else if (ui.warn.size) light("CONFLICT", true, true);
   else ui.lamps["CONFLICT"] = 0;
+  ui.wasConflict = conflict;
   if (ui.sel && !find(S, ui.sel)) ui.sel = null;
-  renderStrips(); renderPanel(); renderLamps();
+  /* a career-ending error on a scored shift: said once, and the way out offered */
+  if (!replay && !S.practice && !S.over && !ui.doomed && S.rank > 1 && tally(S).fired) {
+    ui.doomed = true; $("notice").hidden = false;
+    announce("This shift ends your career. Work it to the hour for the pay, or end it now.");
+  }
+  if (ui.coach === 1 && $("coach").hidden && S.planes.some(p => p.mode === "fly")) coach(1);
+  renderStanding(); renderStrips(); renderPanel(); renderLamps();
   if (!replay && !S.over && S.t % 4 === 0) save(KEY_SHIFT, S);
 }
 function light(lamp, amber, hold) { ui.lamps[lamp] = { until: performance.now() + (hold ? 400 : 3000), amber }; }
@@ -1701,53 +1860,87 @@ function clockText() {
   return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
 }
 
-/* ---- the shift's end ---- */
-function endShift() {
-  loop.paused = true;
-  save(KEY_SHIFT, null);
+/* ---- the shift's end: settled once, then shown as often as asked ---- */
+const plural = (k, one, many) => k + " " + (k === 1 ? one : many);
+/* why the verdict: the lines the report draws, in the report's own words */
+function whyText(S, t) {
+  const errs = [];
+  if (t.crash) errs.push(plural(t.crash, "crash", "crashes"));
+  if (t.badexit) errs.push(plural(t.badexit, "bad exit", "bad exits"));
+  if (t.emexit) errs.push(plural(t.emexit, "exit with an emergency", "exits with an emergency"));
+  const conf = (t.conflictSec >= 60 ? Math.floor(t.conflictSec / 60) + " min " : "") + Math.round(t.conflictSec % 60) + " s of conflict";
+  if (t.fired) {
+    const why = errs.length ? errs.join(", ") : t.conflictSec > 60 ? conf + ", over the minute" : Math.floor(t.delayMin) + " minutes of delay, over the 45";
+    return "A GS-8 and above is let go for " + why + ".";
+  }
+  if (S.rank === 1 && (errs.length || t.conflictSec > 60)) return "A trainee is never fired; " + (errs.length ? errs.join(", ") : conf) + " would have ended any other career.";
+  if (t.promoted) return "No crashes, no bad exits, " + conf + ": under the 30 that a promotion allows" + (t.perfect ? ", and no delay. A clean shift." : ".");
+  if (!t.completions) return "Nothing landed or handed off: a promotion is earned by working traffic.";
+  if (errs.length) return "No promotion with " + errs.join(", ") + ".";
+  if (t.conflictSec >= 30) return conf + ": a promotion needs under 30.";
+  if (S.rank >= MAX_RANK) return "The top of the ladder: " + conf + ", no errors.";
+  return "";
+}
+function settle() {
+  if (S.report) return S.report;
   const t = tally(S); ui.lastTally = t;
-  Voice.clear();
-  let verdict, pay = 0;
-  if (replay) { verdict = "End of replay"; }
-  else if (S.practice) { verdict = t.major ? "Practice: " + t.major + " major error" + (t.major === 1 ? "" : "s") : "Practice shift complete"; }
+  let verdict, pay = 0, kind = "";
+  if (replay) verdict = "End of replay";
+  else if (S.practice) { verdict = t.major ? "Practice: " + plural(t.major, "major error", "major errors") : "Practice shift complete"; }
   else {
     pay = t.salary + t.bonus;
     career.total += pay; career.shifts++;
-    if (t.fired) verdict = "Game over, try again!";
-    else if (t.promoted) { career.rank++; verdict = "You've been promoted to " + gsOf(career.rank); }
-    else if (S.rank >= MAX_RANK && !t.major) verdict = "You've been given another shift!";
+    if (t.fired) { verdict = "You've been relieved of duty"; kind = "bad out"; }
+    else if (t.promoted) { career.rank++; verdict = "Promoted to " + gsOf(career.rank); kind = "up"; }
+    else if (S.rank >= MAX_RANK && !t.major) verdict = "You've been given another shift";
     else verdict = "Another shift at " + gsOf(career.rank);
     careerLog.push({ when: Date.now(), sector: S.sector, shift: S.shift, rank: S.rank, pay, verdict: t.fired ? "fired" : t.promoted ? "promoted" : "kept", practice: false });
     save(KEY_LOG, careerLog);
     if (t.fired) { career = null; save(KEY_CAREER, null); } else save(KEY_CAREER, career);
   }
   if (S.practice && !replay) { careerLog.push({ when: Date.now(), sector: S.sector, shift: S.shift, rank: S.rank, pay: 0, verdict: t.major ? "errors" : "clean", practice: true }); save(KEY_LOG, careerLog); }
-  play(t.fired ? "fired" : "end");
-  const line = (label, n, cls) => `<span>${label}</span><span class="n ${n && cls ? cls : ""}">${n}</span>`;
+  S.report = { t, verdict, kind, pay, why: replay ? "" : whyText(S, t), total: career ? career.total : 0, fired: t.fired };
+  return S.report;
+}
+function endShift() {
+  loop.paused = true; loop.fast = false;
+  S.over = true;
+  save(KEY_SHIFT, null);
+  Voice.clear();
+  $("notice").hidden = true; coach(0);
+  const r = settle();
+  play(r.fired ? "fired" : "end");
+  announce("Shift report. " + r.verdict + ". " + r.why);
+  showReport();
+}
+function showReport() {
+  const r = S.report, t = r.t;
+  const line = (label, v, cls) => `<span>${label}</span><span class="n ${v && cls ? cls : ""}">${v}</span>`;
   openSheet("Shift report", { html: () => `
-    <p class="verdict ${t.fired ? "bad" : ""}">${esc(verdict)}</p>
-    ${t.perfect ? "<p><b>Congratulations, no errors!</b></p>" : ""}
+    <p class="verdict ${r.kind}">${esc(r.verdict)}</p>
+    ${r.why ? `<p class="why">${esc(r.why)}</p>` : ""}
     <div class="report">
-      ${line("Flight completions", t.completions, "good")}
-      ${line("Emergency landings", t.emland, "good")}
+      ${line("Flights completed", t.completions, "good")}
+      ${line("Emergencies landed", t.emland, "good")}
       ${line("Puma flights completed", t.pumaDone, "good")}
-      ${line("Crash(es)", t.crash, "bad")}
-      ${line("Bad exit(s)", t.badexit, "bad")}
-      ${line("Exit(s) with emergency", t.emexit, "bad")}
+      ${line("Crashes", t.crash, "bad")}
+      ${line("Bad exits", t.badexit, "bad")}
+      ${line("Exits with an emergency", t.emexit, "bad")}
       ${line("Conflict", (t.conflictSec >= 60 ? Math.floor(t.conflictSec / 60) + " min " : "") + Math.round(t.conflictSec % 60) + " s", t.conflictSec > 0 ? "bad" : "")}
-      ${line("Flight delays", Math.floor(t.delayMin) + " min", t.delayMin >= 1 ? "bad" : "")}
+      ${line("Delay", Math.floor(t.delayMin) + " min", t.delayMin >= 1 ? "bad" : "")}
     </div>
-    ${S.practice || replay ? "" : `<div class="report">${line("Salary", money(t.salary))}${line("Bonus", money(t.bonus))}${line("Career total", money(career ? career.total : 0))}</div>`}
+    ${S.practice || replay ? "" : `<div class="report">${line("Salary", money(t.salary))}${line("Bonus", money(t.bonus))}${line("Career total", money(r.total))}</div>`}
     <div class="row">
-      <button data-r="continue" autofocus>${t.fired ? "Back to the title" : replay ? "Back to the report" : "Continue"}</button>
+      <button data-r="continue" autofocus>${r.fired ? "Back to the title" : replay ? "Back to the report" : "Continue"}</button>
       ${replay ? "" : '<button data-r="replay">Instant replay</button>'}
-      ${S.practice || replay ? "" : '<button data-r="restart">Restart entire game</button>'}
-    </div>`,
+    </div>
+    ${S.practice || replay || r.fired ? "" : '<div class="row quiet"><button data-r="restart">Restart the entire game</button></div>'}`,
     onClick: async (b) => {
       const r = b.dataset.r; if (!r) return;
       if (r === "replay") { startShift(newShift({ sector: S.sector, shift: S.shift, rank: S.rank, seed: S.seed, practice: S.practice }), { log: S.log.slice(), i: 0, from: S }); return; }
       if (r === "restart") { if (!await confirmSheet("Restart the entire game? Your career ends here; the career log keeps its shifts.", "Restart")) return; career = null; save(KEY_CAREER, null); toTitle(); return; }
-      if (replay && replay.from) { const from = replay.from; replay = null; S = from; endShift(); return; }
+      /* back from a replay: the shift was settled when it ended; only show it */
+      if (replay && replay.from) { S = replay.from; replay = null; showReport(); return; }
       toTitle();
     } });
 }
@@ -1757,15 +1950,22 @@ function endShift() {
    ============================================================ */
 const cv = $("scope"), cx = cv.getContext("2d");
 let dpr = 1, pitch = 20, ox = 0, oy = 0;
+/* the scope takes the width of its pane; the band above it, radio and
+   lamps, floats in the room a 40:24 scope leaves on most screens, and on a
+   screen too short for that the scope gives it its height. On a phone the
+   band is in the flow, and a mile is never under 14px: the pane pans. */
 function fitScope() {
-  const wrap = $("scope-wrap"), sec = SECTORS[S.sector];
-  const aw = wrap.clientWidth - 16, ah = Math.max(200, wrap.clientHeight - 16);
-  let w = aw, h = w * sec.H / sec.W;
-  if (h > ah && window.innerWidth > 860) { h = ah; w = h * sec.W / sec.H; }
+  const wrap = $("scope-wrap"), sec = SECTORS[S.sector], phone = window.innerWidth <= 860;
+  const band = phone ? 0 : $("band").offsetHeight + 4;
+  wrap.style.paddingTop = phone ? "" : band + 8 + "px";
+  const aw = wrap.clientWidth - 16, ah = Math.max(200, wrap.clientHeight - 16 - band);
+  let w = phone ? Math.max(aw, 14 * (sec.W + 1)) : aw, h = w * sec.H / sec.W;
+  if (!phone && h > ah) { h = ah; w = h * sec.W / sec.H; }
   dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.style.width = w + "px"; cv.style.height = h + "px";
   cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
   pitch = (w / (sec.W + 1)) * dpr; ox = pitch; oy = pitch * 0.5 + (h * dpr - pitch * (sec.H)) / 2;
+  if (phone && w > aw) wrap.scrollLeft = (w - aw) / 2;
 }
 window.addEventListener("resize", () => { if (S) fitScope(); });
 const gx = x => ox + x * pitch, gy = y => oy + y * pitch;
@@ -1786,7 +1986,7 @@ function holdDot(p, ready) {
 /* a ring on the dot where a command takes hold, and a dashed arrow along
    the heading it ends on (no arrow for a hold or a landing) */
 function turnMark(x, y, h, col, blink) {
-  if (blink && ((performance.now() / 260) | 0) % 2) return;
+  if (blink && !reduced() && ((performance.now() / 260) | 0) % 2) return;
   const r = pitch * .24;
   cx.save(); cx.strokeStyle = col; cx.fillStyle = col; cx.globalAlpha = blink ? .9 : .65; cx.lineWidth = 1.2 * dpr;
   cx.beginPath(); cx.arc(x, y, r, 0, Math.PI * 2); cx.stroke();
@@ -1806,7 +2006,7 @@ function turnMark(x, y, h, col, blink) {
 function drawPlane(c, X, Y, h, alt, id, col, pitch, talt, pending) {
   const bw = pitch * .64, bh = Math.max(1, pitch * .09), step = pitch * .18;
   const to = talt == null ? alt : talt, top = Math.max(alt, to, 1);
-  const blink = !pending || ((performance.now() / 260) | 0) % 2 === 0;
+  const blink = !pending || reduced() || ((performance.now() / 260) | 0) % 2 === 0;
   c.fillStyle = col;
   for (let i = 0; i < alt; i++) {
     if (i >= to) {                                   /* draining: amber ghosts */
@@ -1828,7 +2028,7 @@ function drawPlane(c, X, Y, h, alt, id, col, pitch, talt, pending) {
 }
 function render() {
   if (!S) return;
-  const sec = SECTORS[S.sector], W = cv.width, H = cv.height, now = performance.now();
+  const sec = SECTORS[S.sector], W = cv.width, H = cv.height, now = performance.now(), still = reduced();
   cx.clearRect(0, 0, W, H);
   cx.font = `${Math.max(9, pitch * 0.55)}px ${getComputedStyle(document.body).fontFamily}`;
   cx.textBaseline = "middle"; cx.textAlign = "center";
@@ -1893,7 +2093,7 @@ function render() {
     const onGround = p.mode === "ground";
     if (p.mode === "pending" || (onGround && p !== sel)) continue;
     const pos = planePos(p), X = gx(pos.x), Y = gy(pos.y);
-    const inConf = S.t - p.conf < 2 && ((now / 150) | 0) % 2 === 0;
+    const inConf = S.t - p.conf < 2 && (still || ((now / 150) | 0) % 2 === 0);
     const col = onGround ? "#7d8aa8" : inConf ? "#ff5266" : p.emergency ? "#ffb000" : p === sel ? "#ffffff" : p.al === "PU" ? "#b47dff" : "#54f2ff";
     /* the height it is going to: the one being set up, or the one sent */
     const setting = p === sel && p.mode !== "final" && ui.alt !== p.alt;
@@ -1917,6 +2117,11 @@ function render() {
       cx.strokeStyle = onGround ? "#7d8aa8" : "#ffffff"; cx.lineWidth = 1 * dpr;
       if (onGround) cx.setLineDash([2 * dpr, 2 * dpr]);
       cx.strokeRect(X - pitch * .6, ay - pitch * .5, pitch * 1.2, Y - ay + pitch * .7); cx.setLineDash([]);
+    }
+    /* the Learning scope's warning: a dot from losing separation, in amber */
+    if (ui.warn.has(p.id) && !inConf) {
+      cx.strokeStyle = "#ffb000"; cx.lineWidth = 1.5 * dpr; cx.setLineDash([4 * dpr, 3 * dpr]);
+      cx.strokeRect(X - pitch * .8, ay - pitch * .7, pitch * 1.6, Y - ay + pitch * 1.1); cx.setLineDash([]);
     }
     /* where the change happens: a ring on the next dot, and the heading it
        ends on from there. The command being set up blinks in white; a sent
@@ -1945,14 +2150,17 @@ function render() {
   cx.fillStyle = S.over ? "#4ade6a" : "#54f2ff"; cx.fillRect(0, 0, W * Math.min(1, (S.t + loop.acc / TICK_MS) / S.end), 2 * dpr);
   $("clock").textContent = clockText();
   $("speed").classList.toggle("on", loop.speed > 1 && !loop.paused);
-  if (loop.paused && !sheet) { $("banner").className = "on"; $("banner").textContent = "PAUSED · P"; }
+  if (loop.paused && !sheet && !S.over) { $("banner").className = "on"; $("banner").textContent = "PAUSED · P"; }
   else if (!replay && $("banner").textContent === "PAUSED · P") { $("banner").className = ""; }
+  if ($("btn-pause").getAttribute("aria-pressed") !== String(loop.paused)) $("btn-pause").setAttribute("aria-pressed", String(loop.paused));
 }
 
 /* ---- the flight-plan board ---- */
 function hotOf(id) { for (const d in S.hot) if (S.hot[d] === id) return d; return ""; }
 function stripStatus(p) {
   if (p.mode === "pending") return ["posted", ""];
+  if (S.t - p.conf < 2) return ["CONFLICT", "bad"];
+  if (ui.warn.has(p.id)) return ["TRAFFIC", "warn"];
   if (p.mode === "ground") return ["READY", "warn"];
   if (p.emergency) return [Math.ceil(p.fuel / TPM) + " MIN FUEL", "warn"];
   if (p.mode === "final") return ["LANDING", "good"];
@@ -1963,53 +2171,77 @@ function stripStatus(p) {
   if (p.th !== null && (p.th !== p.h || p.talt !== p.alt)) return ["→ " + HDG[p.th] + " / " + p.talt, ""];
   return [HDG[p.h], ""];
 }
+/* the board and the panel are redrawn every tick; keyboard focus on a strip
+   or a button is put back on its twin, so Tab's place survives the redraw */
+function keepFocus(host, draw) {
+  const f = document.activeElement, key = f && host.contains(f) && f.dataset ? Object.entries(f.dataset).find(([k]) => k !== "ap") : null;
+  draw();
+  if (key) { const g = host.querySelector(`[data-${key[0]}="${key[1]}"]`); if (g) g.focus({ preventScroll: true }); }
+}
 function renderStrips() {
-  const list = $("strip-list"), sec = SECTORS[S.sector];
   const kindMark = { arr: "↓", dep: "↑", tra: "→" };
-  list.innerHTML = S.planes.map(p => {
-    const [st, cls] = stripStatus(p);
-    return `<div class="strip ${p.mode === "pending" ? "pending" : ""} ${p.id === ui.sel ? "sel" : ""} ${p.al === "PU" ? "puma" : ""} ${S.t - p.conf < 2 ? "conf" : ""} ${p.emergency ? "em" : ""}" data-id="${p.id}" role="button" tabindex="-1">
-      <span class="id">${p.id}${hotOf(p.id) ? `<span class="hot">${hotOf(p.id)}</span>` : ""}</span><span class="call">${esc(callsign(p))}<span style="color:var(--dim);font-weight:400"> ${CLASSES[p.cls].label}</span></span><span class="alt">${p.mode === "ground" ? "RWY" : p.alt + ",000"}</span>
-      <span class="route">${kindMark[p.kind]} ${esc(p.from)} → ${esc(p.to)}</span><span class="st ${cls}">${esc(st)}</span></div>`;
-  }).join("") || '<div class="sel-none">No flight plans posted yet.</div>';
-  void sec;
+  const kindName = { arr: "arrival", dep: "departure", tra: "overflight" };
+  keepFocus($("strip-list"), () => {
+    $("strip-list").innerHTML = S.planes.map(p => {
+      const [st, cls] = stripStatus(p);
+      return `<div class="strip ${p.mode === "pending" ? "pending" : ""} ${p.id === ui.sel ? "sel" : ""} ${p.al === "PU" ? "puma" : ""} ${S.t - p.conf < 2 ? "conf" : ui.warn.has(p.id) ? "warn" : ""} ${p.emergency ? "em" : ""}" data-id="${p.id}" role="button" tabindex="${p.mode === "pending" ? -1 : 0}" aria-pressed="${p.id === ui.sel}" aria-label="${p.id}, ${esc(callsign(p))}, ${kindName[p.kind]} ${esc(p.from)} to ${esc(p.to)}, ${p.mode === "ground" ? "on the runway" : p.alt + " thousand"}, ${esc(st)}">
+        <span class="id">${p.id}${hotOf(p.id) ? `<span class="hot">${hotOf(p.id)}</span>` : ""}</span><span class="call">${esc(callsign(p))}<span style="color:var(--dim);font-weight:400"> ${CLASSES[p.cls].label}</span></span><span class="alt">${p.mode === "ground" ? "RWY" : p.alt + ",000"}</span>
+        <span class="route">${kindMark[p.kind]} ${esc(p.from)} → ${esc(p.to)}${p.kind === "tra" ? " at 4,000" : ""}</span><span class="st ${cls}">${esc(st)}</span></div>`;
+    }).join("") || '<div class="sel-none">No flight plans posted yet.</div>';
+  });
+  /* the scope, in words, for a reader that cannot see it */
+  const air = S.planes.filter(p => p.mode !== "pending");
+  cv.setAttribute("aria-label", `Radar scope, ${SECTORS[S.sector].name}: ` + (air.length ? air.map(p => `${p.id} heading ${HDG[p.h]} at ${p.mode === "ground" ? "the runway" : p.alt + " thousand"}`).join("; ") : "no traffic"));
 }
 $("strip-list").addEventListener("click", e => { const s = e.target.closest(".strip"); if (s && !s.classList.contains("pending")) select(s.dataset.id); });
+$("strip-list").addEventListener("keydown", e => {
+  const s = e.target.closest(".strip"); if (!s || s.classList.contains("pending") || (e.key !== "Enter" && e.key !== " ")) return;
+  e.preventDefault(); e.stopPropagation(); select(s.dataset.id, true);
+});
 
 /* ---- the command panel ---- */
-function select(id) {
+function select(id, toPanel) {
   const p = id && find(S, id);
   if (!p || p.mode === "pending") { ui.sel = null; renderStrips(); renderPanel(); return; }
   ui.sel = id; ui.h = p.th !== null ? p.th : p.h; ui.alt = p.talt !== null ? p.talt : (p.mode === "ground" ? 5 : p.alt);
   if (p.mode === "ground") { ui.h = p.h; ui.alt = 5; }
   play("select"); renderStrips(); renderPanel();
+  if (ui.coach === 1) coach(2);
+  /* chosen from the keys on the board: the panel's Send takes the focus,
+     and Tab walks the panel from there */
+  if (toPanel) { const b = $("panel").querySelector("[data-act=send]"); if (b) b.focus({ preventScroll: true }); }
 }
 function renderPanel() {
   const el = $("panel"), p = ui.sel && find(S, ui.sel), sec = SECTORS[S.sector];
-  if (!p) { el.innerHTML = `<h3>Command</h3><div class="sel-none">Click a plane or its strip, or <kbd class="hint">Tab</kbd> down the board.<br>Heading and height go together; <kbd class="hint">Enter</kbd> sends.</div>`; return; }
+  if (!p) { el.innerHTML = `<h3>Command</h3><div class="sel-none"><span class="kb">Click a plane or its strip, or <kbd>Tab</kbd> down the board.<br>Heading and height go together; <kbd>Enter</kbd> sends.</span><span class="tp">Tap a plane or its strip.<br>Heading and height go together; Send sends them.</span></div>`; return; }
   const cmp = ["NW", "N", "NE", "W", "", "E", "SW", "S", "SE"], hdgOf = { NW: 7, N: 0, NE: 1, E: 2, SE: 3, S: 4, SW: 5, W: 6 };
   const onFinal = p.mode === "final";
-  el.innerHTML = `<h3>Command</h3>
-    <div class="who"><b>${p.id} · ${esc(callsign(p))}</b>${hotOf(p.id) ? `<span class="hotkey">key <kbd>${hotOf(p.id)}</kbd></span>` : `<span class="hotkey"><kbd class="hint">Ctrl</kbd>+<kbd class="hint">1-9</kbd> to bookmark</span>`}<span>${CLASSES[p.cls].label} · ${{ arr: "arrival", dep: "departure", tra: "overflight" }[p.kind]} · ${esc(p.from)} → ${esc(p.to)}</span></div>
+  const kind = { arr: "arrival", dep: "departure", tra: "overflight, out at 4,000" }[p.kind];
+  keepFocus(el, () => { el.innerHTML = `<h3>Command</h3>
+    <div class="who"><b>${p.id} · ${esc(callsign(p))}</b>${hotOf(p.id) ? `<span class="hotkey">key <kbd>${hotOf(p.id)}</kbd></span>` : `<span class="hotkey kb"><kbd>Shift</kbd>+<kbd>1-9</kbd> bookmarks</span>`}<span class="route">${CLASSES[p.cls].label} ${kind} · ${esc(p.from)} → ${esc(p.to)}</span></div>
     <div class="now"><span>hdg <b>${p.mode === "ground" ? "rwy " + HDG[p.h] : HDG[p.h]}</b></span><span>alt <b>${p.mode === "ground" ? "field" : p.alt + ",000"}</b></span><span class="fuel ${p.emergency ? "low" : ""}">fuel <b>${Math.ceil(p.fuel / TPM)} min</b></span><span>${esc(stripStatus(p)[0])}</span></div>
     <div class="cmd">
-      <div class="compass">${cmp.map(c => c ? `<button data-h="${hdgOf[c]}" class="${ui.h === hdgOf[c] ? "on" : ""}" ${onFinal ? "disabled" : ""}>${c}</button>` : `<div class="mid">${ui.alt === 0 ? "LAND<br>" + esc(sec.airports[landingAt(p)].code) : HDG[ui.h] + "<br>" + ui.alt + ",000"}</div>`).join("")}</div>
-      <div class="alts">${[5, 4, 3, 2, 1, 0].map(a => `<button data-alt="${a}" class="${ui.alt === a ? "on" : ""}" ${onFinal || (a === 0 && p.mode === "ground") ? "disabled" : ""}>${a === 0 ? "0 · land" : a + ",000"}</button>`).join("")}</div>
-    </div>
-    <div class="acts">
-      <button data-act="send" class="primary" ${onFinal ? "disabled" : ""}>${p.mode === "ground" ? "Takeoff" : ui.alt === 0 ? "Clear to land" : "Send"} <kbd class="hint">⏎</kbd></button>
-      <button data-act="cancel">Cancel <kbd class="hint">Esc</kbd></button>
-      <span class="spacer"></span>
-      <button data-act="holdL" ${p.mode === "ground" || onFinal ? "disabled" : ""}>Hold L <kbd class="hint">[</kbd></button>
-      <button data-act="holdR" ${p.mode === "ground" || onFinal ? "disabled" : ""}>Hold R <kbd class="hint">]</kbd></button>
-      <button data-act="status" ${p.mode === "ground" ? "disabled" : ""}>Say <kbd class="hint">/</kbd></button>
-    </div>`;
+      <div class="compass" role="group" aria-label="Heading">${cmp.map(c => c ? `<button data-h="${hdgOf[c]}" class="${ui.h === hdgOf[c] ? "on" : ""}" aria-pressed="${ui.h === hdgOf[c]}" ${onFinal ? "disabled" : ""}>${c}</button>` : `<div class="mid" aria-live="polite">${ui.alt === 0 ? "LAND<br>" + esc(sec.airports[landingAt(p)].code) : HDG[ui.h] + "<br>" + ui.alt + ",000"}</div>`).join("")}</div>
+      <div class="alts" role="group" aria-label="Height">${[5, 4, 3, 2, 1, 0].map(a => `<button data-alt="${a}" class="${ui.alt === a ? "on" : ""}" aria-pressed="${ui.alt === a}" ${onFinal || (a === 0 && p.mode === "ground") ? "disabled" : ""}>${a === 0 ? "0 · land" : a + ",000"}</button>`).join("")}</div>
+      <div class="acts">
+        <button data-act="send" class="primary" ${onFinal ? "disabled" : ""}>${p.mode === "ground" ? "Takeoff" : ui.alt === 0 ? "Clear to land" : "Send"} <kbd class="hint">⏎</kbd></button>
+        <button data-act="holdL" ${p.mode === "ground" || onFinal ? "disabled" : ""} title="Hold, left turns at the VOR">Hold L <kbd class="hint">[</kbd></button>
+        <button data-act="holdR" ${p.mode === "ground" || onFinal ? "disabled" : ""} title="Hold, right turns at the VOR">Hold R <kbd class="hint">]</kbd></button>
+        <button data-act="status" ${p.mode === "ground" ? "disabled" : ""} title="Ask the pilot for heading and height">Say <kbd class="hint">/</kbd></button>
+        <button data-act="cancel">Cancel <kbd class="hint">Esc</kbd></button>
+      </div>
+    </div>`; });
 }
 $("panel").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b || b.disabled) return;
   if (b.dataset.h !== undefined) { ui.h = +b.dataset.h; renderPanel(); return; }
   if (b.dataset.alt !== undefined) { ui.alt = +b.dataset.alt; renderPanel(); return; }
   act(b.dataset.act, b.dataset.ap);
+});
+$("scope-wrap").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.act === "endnow") { if (S && loop.running && !S.over) endShift(); }
+  else if (b.dataset.act === "coach-x") coach(COACH.length);
 });
 function act(a, ap) {
   const p = ui.sel && find(S, ui.sel); if (!p || replay) return;
@@ -2031,6 +2263,7 @@ function act(a, ap) {
   S.events = [];
   play(ok ? "click" : "alarm");
   if (ok && !replay) save(KEY_SHIFT, S);
+  if (ok && ui.coach === 2 && a !== "status") coach(3);
   renderStrips(); renderPanel();
 }
 /* the shift's clock to the fraction of a tick: when a command was sent */
@@ -2097,14 +2330,18 @@ const KEYS = {
   ArrowRight: "hdgR", KeyD: "hdgR", Numpad6: "hdgR",
   BracketLeft: "holdL", KeyQ: "holdL", Numpad7: "holdL",
   BracketRight: "holdR", KeyR: "holdR", Numpad9: "holdR",
-  Slash: "status", KeyF: "status", Numpad0: "status", KeyO: "status",
+  Slash: "status", KeyF: "status", Numpad0: "status",
   Enter: "send", NumpadEnter: "send",
   Space: "fast", Period: "fast", NumpadMultiply: "fast",
 };
 document.addEventListener("keydown", e => {
-  if (sheet) { if (e.key === "Escape") { e.preventDefault(); closeSheet(); } return; }
+  if (sheet) { if (e.key === "Escape") { e.preventDefault(); closeSheet(); } else if (sheet.onKey && !e.ctrlKey && !e.metaKey && !e.altKey) sheet.onKey(e); return; }
   if (titleOpen) { if (!e.ctrlKey && !e.metaKey && !e.altKey) titleKey(e); return; }
   if (!S || !loop.running) return;
+  /* a button in the header or the panel has the focus: Tab and Space are
+     the browser's there, and walk or press the buttons */
+  const onButton = e.target.closest && e.target.closest("#hud, #panel, #scope-wrap button");
+  if (onButton && (e.key === "Tab" || ((e.key === "Enter" || e.code === "Space") && e.target.tagName === "BUTTON"))) return;
   /* quick keys, the way an RTS does its groups: Ctrl (or Shift) and a digit
      on the top row puts the selected plane on that digit; the digit alone
      selects it. The numpad's digits stay controls. */
@@ -2121,9 +2358,11 @@ document.addEventListener("keydown", e => {
   const k = e.key.length === 1 ? e.key.toLowerCase() : e.key, a = KEYS[e.code];
   if (k === "m") { toggleMute(); return; }
   if (k === "h" || k === "?") { showHelp(); return; }
-  if (k === "p" || k === "Pause") { e.preventDefault(); loop.paused = !loop.paused; return; }
+  if (k === "l") { toggleAids(); return; }
+  if (k === "p" || k === "Pause") { e.preventDefault(); togglePause(); return; }
   if (a === "fast") { e.preventDefault(); loop.fast = true; return; }
-  if (k === "Escape") { if (ui.sel) select(null); else toTitle(); return; }
+  /* Esc only ever deselects: leaving the shift is MENU's, which saves it */
+  if (k === "Escape") { if (ui.sel) select(null); return; }
   if (k === "Tab") { e.preventDefault(); cycle(e.shiftKey ? -1 : 1); return; }
   if (replay) return;
   const p = ui.sel && find(S, ui.sel);
@@ -2145,8 +2384,22 @@ function cycle(dir) {
 }
 window.addEventListener("blur", () => { loop.fast = false; });
 document.addEventListener("visibilitychange", () => { if (document.hidden && loop.running && !replay) { loop.paused = true; } });
+function togglePause() { if (!S || S.over) return; loop.paused = !loop.paused; $("btn-pause").setAttribute("aria-pressed", loop.paused ? "true" : "false"); }
+/* a button pressed with the mouse gives the focus back, so Enter still
+   sends and Space still runs the clock, one hand on the mouse and the other
+   on the keys; pressed from the keyboard it keeps it, and Tab walks on */
+document.addEventListener("click", e => { const b = e.target.closest("#hud button, #panel button, #scope-wrap button"); if (b && e.detail > 0) b.blur(); });
 $("btn-help").addEventListener("click", () => showHelp());
-$("btn-menu").addEventListener("click", () => { if (!replay) save(KEY_SHIFT, S); toTitle(); });
+$("btn-menu").addEventListener("click", () => toTitle());
+$("btn-pause").addEventListener("click", togglePause);
+$("btn-aids").addEventListener("click", toggleAids);
+/* fast time while the button is held, as Space is */
+const fastBtn = $("btn-fast");
+const fastOff = () => { loop.fast = false; fastBtn.classList.remove("on"); };
+fastBtn.addEventListener("pointerdown", e => { e.preventDefault(); loop.fast = true; fastBtn.classList.add("on"); });
+for (const ev of ["pointerup", "pointercancel", "pointerleave"]) fastBtn.addEventListener(ev, fastOff);
+fastBtn.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); loop.fast = true; fastBtn.classList.add("on"); } });
+fastBtn.addEventListener("keyup", fastOff);
 
 /* ---- the title's scene: a scope, sweeping ---- */
 function sceneSVG() {
