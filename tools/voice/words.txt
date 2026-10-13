@@ -1,4 +1,6 @@
 # key|text spoken   (lines starting with # are ignored)
+# text as ipa:<IPA> pins the pronunciation with an SSML phoneme, for words
+# the voice gets wrong; a respelling is simpler where one works (puma -> pooma)
 # digits
 0|zero
 1|one

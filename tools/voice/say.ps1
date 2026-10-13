@@ -14,12 +14,17 @@ $s.Rate = $Rate
 $fmt = New-Object System.Speech.AudioFormat.SpeechAudioFormatInfo(22050, [System.Speech.AudioFormat.AudioBitsPerSample]::Sixteen, [System.Speech.AudioFormat.AudioChannel]::Mono)
 $words = Join-Path $PSScriptRoot "words.txt"
 $n = 0
-foreach ($line in Get-Content $words) {
+foreach ($line in Get-Content -Encoding UTF8 $words) {
   if ($line -match '^\s*(#|$)') { continue }
   $parts = $line.Split('|', 2)
   $key = $parts[0].Trim(); $text = $parts[1].Trim()
   $s.SetOutputToWaveFile((Join-Path $Out ($key + ".wav")), $fmt)
-  $s.Speak($text)
+  if ($text.StartsWith("ipa:", [StringComparison]::Ordinal)) {   # ordinal: the stress mark trips a culture-aware compare
+    $ipa = $text.Substring(4)
+    $s.SpeakSsml('<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US"><phoneme alphabet="ipa" ph="' + $ipa + '">' + $key + '</phoneme></speak>')
+  } else {
+    $s.Speak($text)
+  }
   $n++
 }
 $s.SetOutputToNull()
