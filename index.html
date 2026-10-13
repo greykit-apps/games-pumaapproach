@@ -974,7 +974,8 @@ function sayHdg(h) { return HDG[h].split(""); }
 function sayAlt(a) { return a === 0 ? ["0"] : [String(a), "thousand"]; }
 function altText(a) { return a === 0 ? "the field" : a + ",000"; }
 function find(S, id) { return S.planes.find(p => p.id === id) || null; }
-function radio(S, who, text, say) { S.events.push({ type: "radio", who, text, say }); }
+/* checkin: a plane calling up on the frequency, which is heard at any speed */
+function radio(S, who, text, say, checkin) { S.events.push(checkin ? { type: "radio", who, text, say, checkin } : { type: "radio", who, text, say }); }
 function alarm(S, lamp, text) { S.events.push({ type: "alarm", lamp, text }); }
 
 /* A command is said and logged at once, but the pilot needs a moment to
@@ -1206,8 +1207,8 @@ function tick(S) {
   for (const p of [...S.planes]) {
     if (p.mode === "pending") {
       if (S.t >= p.enter) {
-        if (p.kind === "dep") { p.mode = "ground"; radio(S, "pilot", callsign(p) + ", ready for departure, " + p.from + " to " + p.to, [...sayCall(p), "with", "you"]); }
-        else { p.mode = "fly"; p.phase = 0; radio(S, "pilot", callsign(p) + " with you, " + altText(p.alt) + ", for " + p.to, [...sayCall(p), "with", "you", "altitude", ...sayAlt(p.alt)]); }
+        if (p.kind === "dep") { p.mode = "ground"; radio(S, "pilot", callsign(p) + ", ready for departure, " + p.from + " to " + p.to, [...sayCall(p), "with", "you"], true); }
+        else { p.mode = "fly"; p.phase = 0; radio(S, "pilot", callsign(p) + " with you, " + altText(p.alt) + ", for " + p.to, [...sayCall(p), "with", "you", "altitude", ...sayAlt(p.alt)], true); }
       }
       continue;
     }
@@ -1442,9 +1443,9 @@ const Voice = {
   said: new Set(),                /* planes whose last command was said but not yet read back */
   say(item) {
     this.q.push(Object.assign({ kind: "chat" }, item));
-    /* a backed-up frequency loses the oldest chatter, never a command */
-    const chat = this.q.filter(i => i.kind === "chat");
-    if (chat.length > 4) this.q = this.q.filter(i => i.kind !== "chat" || chat.indexOf(i) >= chat.length - 4);
+    /* a backed-up frequency loses the oldest chatter, never a command or a check-in */
+    const chat = this.q.filter(i => i.kind === "chat" && !i.checkin);
+    if (chat.length > 4) this.q = this.q.filter(i => i.kind !== "chat" || i.checkin || chat.indexOf(i) >= chat.length - 4);
     this.pump();
   },
   cmd(ctl, readback, id, supersede) {
@@ -1480,7 +1481,8 @@ const Voice = {
     if (it.kind === "cmd" && it.sup) this.said.add(it.id);
     if (it.kind === "rb") this.said.delete(it.id);
     showRadio(it);
-    const spoken = prefs.voice && !muted && loop.speed <= 1 && this.q.length < 4 ? this.speak(it.say, it.who) : 0;
+    /* above 1x, or with a backlog, only a plane checking in is heard */
+    const spoken = prefs.voice && !muted && (it.checkin || (loop.speed <= 1 && this.q.length < 4)) ? this.speak(it.say, it.who) : 0;
     const ms = spoken ? spoken * 1000 + 250 : Math.min(1800, 180 + it.say.length * 110);
     this.busy = true;
     this.timer = setTimeout(() => { this.cur = null; this.busy = false; this.pump(); }, ms);
@@ -1603,7 +1605,7 @@ function showSettings() {
       <p class="gk-note">Alarms, the conflict buzzer and the radio. <kbd>M</kbd> switches it anywhere; so does the speaker in the header. Off, the voice is off too.</p>
       <h3>Game speed</h3>
       <div class="row">${pill(prefs.speed === 1, "1× real time", "speed:1")}${pill(prefs.speed === 2, "2×", "speed:2")}${pill(prefs.speed === 4, "4×", "speed:4")}</div>
-      <p class="gk-note">A shift runs in real time: ten or fifteen minutes on the clock. Holding <kbd>Space</kbd> runs it fast while you wait. The voice stays quiet above 1×.</p>
+      <p class="gk-note">A shift runs in real time: ten or fifteen minutes on the clock. Holding <kbd>Space</kbd> runs it fast while you wait. Above 1× the voice keeps quiet, except for planes checking in.</p>
       <h3>This browser</h3>
       <div class="row"><button data-set="forget">Forget everything</button></div>
       <p class="gk-note">Clears everything PumaApproach keeps in this browser: your career, the career log, a shift in progress, and these settings.</p>`,
