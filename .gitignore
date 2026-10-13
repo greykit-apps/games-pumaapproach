@@ -1,3 +1,4 @@
 .claude/
 *.D64
 *.d64
+__pycache__/

@@ -96,6 +96,10 @@ const lamps = ev => ev.filter(e => e.type === "alarm").map(e => e.lamp);
   E.command(S, { id: "A", op: "vector", h: 4, alt: 4, at: S.t });
   run(S, 1);
   check("a departure rolls on the first tick after it has taken in its clearance", p.mode === "fly" && p.talt === 4);
+  run(S, 2);
+  check("its first dot is the climb-out: down the runway to 1,000 ft, no turn", p.x === 22 && p.y === 13 && p.h === 2 && p.alt === 1, `${p.x},${p.y} h${p.h} a${p.alt}`);
+  run(S, 2);
+  check("...then it turns and climbs as cleared", p.h === 3 && p.alt === 2, `h${p.h} a${p.alt}`);
 }
 
 /* ---- landing ---- */
