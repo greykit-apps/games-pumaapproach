@@ -25,11 +25,11 @@ The scope is a grid of dots a mile apart. Each plane is an arrowhead on one of e
 
 A command is heading and height together, sent with one click or `Enter`; height 0 is the landing clearance, as on the C64. Hold, takeoff and "say heading and altitude" are the rest of the vocabulary. The controller speaks every command and the pilot reads it back; a second command to the same plane replaces the first, with "correction" if the first was already on the air.
 
-The pilot takes about four seconds to take a command in, then acts at the next dot after that. Settings → Scope picks the aids: **Classic**, the 1985 scope, where the heading being set up runs from the plane's bottom bar; or **Learning**, which also rings the dot where each command will take hold until the turn is done.
+The pilot takes about four seconds to take a command in, then acts at the next dot after that. `L` (or Settings → Scope) picks the aids: **Learning**, the default, which rings the dot where each command will take hold and turns two planes amber one dot before they lose separation; or **Classic**, the 1985 scope, where the heading being set up runs from the plane's bottom bar and the buzzer is the first you hear of a conflict.
 
 ## Facilities and the career
 
-Five facilities, in order of difficulty: Atlanta, Dallas-Ft.Worth, Denver, Washington D.C., New York. Five shifts: Trainee, Graveyard, Afternoon, Morning, Prime Time. Your rank, GS-7 to GS-13, sets which shift each facility gives you, by the original's table. No crashes, no bad exits and under 30 seconds of conflict: promoted. A crash, a bad exit, over a minute of conflict or 45 minutes of delay: fired. A trainee is never fired.
+Five facilities, in order of difficulty: Atlanta, Dallas-Ft.Worth, Denver, Washington D.C., New York. Five shifts: Trainee, Graveyard, Afternoon, Morning, Prime Time. Your rank, GS-7 to GS-13, sets which shift each facility gives you, by the original's table. The header counts the shift's conflict seconds and delay minutes as they happen. No crashes, no bad exits and under 30 seconds of conflict: promoted. A crash, a bad exit, over a minute of conflict or 45 minutes of delay: fired. A trainee is never fired.
 
 Pay is $500 a rank plus $100 per flight completed, $200 per emergency landed, −$100 per minute of delay, as in the manual. **Puma** flights pay double, and a delayed Puma costs double.
 
@@ -66,8 +66,9 @@ One hand on the mouse, the other on the keys. Three layouts do the same things:
 |---|---|
 | Enter | send; at height 0 that is the landing clearance |
 | Esc | cancel, deselect |
+| L | scope aids: Learning or Classic |
 | Tab, Shift+Tab | next plane down the board, or up |
-| Ctrl+1…9 | bookmark the selected plane on that digit, RTS-style (Shift works too) |
+| Shift+1…9 | bookmark the selected plane on that digit, RTS-style (Ctrl works too, where the browser leaves it alone) |
 | 1…9 | select the plane on that digit |
 | P, Pause | pause |
 | M | sound |

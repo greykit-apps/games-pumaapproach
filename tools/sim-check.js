@@ -203,6 +203,24 @@ const lamps = ev => ev.filter(e => e.type === "alarm").map(e => e.lamp);
   check("a GS-7 is never fired", !E.tally(S).fired);
   S.rank = 7; S.conflictTicks = 0; S.done.pop();
   check("GS-13 cannot be promoted further", !E.tally(S).promoted && !E.tally(S).fired);
+  S.rank = 3; S.done = [];
+  check("a shift that completed nothing is not promoted, not fired", !E.tally(S).promoted && !E.tally(S).fired && !E.tally(S).perfect);
+}
+
+/* ---- the look ahead: a dot before separation is lost ---- */
+{
+  let S = quiet(); plane(S, { id: "A", x: 10, y: 10, h: 2 }); plane(S, { id: "B", x: 14, y: 10, h: 6 });
+  check("probe: 4 miles apart, closing head-on: both warned", [...E.probe(S)].sort().join("") === "AB");
+  S = quiet(); plane(S, { id: "A", x: 10, y: 10, h: 2 }); plane(S, { id: "B", x: 14, y: 10, h: 2 });
+  check("probe: 4 miles apart, same way: no warning", E.probe(S).size === 0);
+  S = quiet(); plane(S, { id: "A", x: 10, y: 10, h: 2, alt: 5, talt: 4 }); plane(S, { id: "B", x: 14, y: 10, h: 6, alt: 5 });
+  check("probe: closing but one descending away: no warning", E.probe(S).size === 0);
+  S = quiet(); plane(S, { id: "A", x: 10, y: 10, h: 2, alt: 5 }); const b = plane(S, { id: "B", x: 14, y: 10, h: 6, alt: 4 });
+  check("probe: closing 1,000 ft apart: no warning", E.probe(S).size === 0);
+  b.next = { c: { op: "vector", h: 6, alt: 5 }, ready: S.t };
+  check("probe: ...until a climb into the other's height is about to take hold", E.probe(S).size === 2);
+  S = quiet(); plane(S, { id: "A", x: 10, y: 10, h: 2 }); plane(S, { id: "B", x: 14, y: 10, h: 6, mode: "ground" });
+  check("probe: a plane on the ground is not traffic", E.probe(S).size === 0);
   check("the ladder: GS-7 Atlanta Trainee, GS-8 Denver Trainee, GS-9 New York Trainee, GS-13 New York Prime Time, GS-7 Denver nothing",
     E.shiftFor(1, 0) === 0 && E.shiftFor(2, 2) === 0 && E.shiftFor(3, 4) === 0 && E.shiftFor(7, 4) === 4 && E.shiftFor(1, 2) === -1 && E.shiftFor(6, 0) === -1);
 }
