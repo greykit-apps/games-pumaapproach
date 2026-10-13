@@ -118,6 +118,16 @@ const lamps = ev => ev.filter(e => e.type === "alarm").map(e => e.lamp);
   E.command(S, { id: "A", op: "land", ap: 0 });
   run(S, 2 * (VOR_D + 1) + 1);
   check("low at the VOR: reaches the ground early, rolls on to the field, lands", S.done[0] && S.done[0].outcome === "landed", JSON.stringify(S.done[0]));
+  /* lined up inside the VOR and low enough: straight in, not back round by the IAF */
+  S = quiet(); p = plane(S, { kind: "arr", to: "ATL", toAp: 0, x: ap.x - 3, y: ap.y, h: ap.rwy, alt: 3, period: 2 });
+  E.command(S, { id: "A", op: "land", ap: 0 });
+  run(S, 2 * 3 + 1);
+  check("lined up 3 out at 3,000 and cleared: lands straight in", S.done[0] && S.done[0].outcome === "landed", JSON.stringify(S.done[0]) + " " + JSON.stringify(p));
+  /* further out on the centerline: level until the slope, then down */
+  S = quiet(); p = plane(S, { kind: "arr", to: "ATL", toAp: 0, x: iaf.x - 3, y: ap.y, h: ap.rwy, alt: 5, period: 1 });
+  E.command(S, { id: "A", op: "land", ap: 0 });
+  const alts = []; for (let i = 0; i < 12 && S.planes.length; i++) { E.tick(S); alts.push(p.alt); }
+  check("on the centerline 10 out at 5,000: level to the VOR, then 1,000 ft a mile", S.done[0] && S.done[0].outcome === "landed" && alts.join("") === "5555543210", alts.join(""));
   S = quiet(); p = plane(S, { kind: "arr", to: "ATL", toAp: 0, x: ap.x - 2, y: ap.y, h: ap.rwy, alt: 5, period: 2 });
   E.command(S, { id: "A", op: "vector", h: ap.rwy, alt: 0 });
   ev = run(S, 20);

@@ -716,8 +716,9 @@ const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 /* rwy: the landing heading. The VOR sits VOR_D dots before the runway on
  * the approach side, and the initial approach fix IAF_D dots before that;
  * arrivals and holds fly to the IAF, line up, and go to the VOR. A plane
- * cleared to land that is at the VOR at 5,000 ft, heading down the runway,
- * reaches the ground exactly at the airport: 1,000 ft a mile. */
+ * cleared to land joins the centerline wherever it can and comes down at
+ * 1,000 ft a mile: from 5,000 ft at the VOR, the ground exactly at the
+ * airport. */
 const VOR_D = 5, IAF_D = 2;
 const SECTORS = [
   { id: "ATL", name: "Atlanta", W: 40, H: 24,
@@ -815,7 +816,7 @@ function navHeading(sec, p, goal) {
   const q = [start];
   for (let qi = 0; qi < q.length; qi++) {
     const s = q[qi], h = s & 7, x = (s >> 3) % W, y = (s >> 3) / W | 0;
-    if (x === goal.x && y === goal.y && h === goal.h) {
+    if (typeof goal === "function" ? goal(x, y, h) : x === goal.x && y === goal.y && h === goal.h) {
       let cur = s;
       while (prev[cur] !== start) cur = prev[cur];
       return cur & 7;
@@ -836,7 +837,16 @@ function onInbound(p, ap) {
   for (let k = VOR_D; k <= VOR_D + IAF_D; k++) if (p.x === ap.x - DIRS[ap.rwy][0] * k && p.y === ap.y - DIRS[ap.rwy][1] * k) return true;
   return false;
 }
-/* how a plane joins the approach or the hold from wherever it is */
+/* miles out on the runway's extended centerline, on the approach side; -1 off it */
+function finalDist(ap, x, y) {
+  const [dx, dy] = DIRS[ap.rwy], d = dx ? (ap.x - x) / dx : (ap.y - y) / dy;
+  return d >= 1 && x === ap.x - dx * d && y === ap.y - dy * d ? d : -1;
+}
+/* a dot a plane cleared to land can start down from: on the centerline,
+ * on the runway heading, and far enough out to lose its height at 1,000 ft
+ * a mile. Lower and further out it flies level until it meets that slope. */
+function joinsFinal(ap, x, y, h, alt) { return h === ap.rwy && finalDist(ap, x, y) >= Math.max(alt, 2); }
+/* how a plane joins the hold from wherever it is */
 function joinNav(p, ap, apIdx) {
   const vor = vorOf(ap);
   if (p.x === vor.x && p.y === vor.y && p.h === ap.rwy) return "atvor";
@@ -1072,9 +1082,9 @@ function applyCommand(S, p, c) {
     if (c.alt != null) p.talt = c.alt;
     else if (p.talt === 0) p.talt = p.alt;              /* pulled off the approach: level off */
   } else if (c.op === "land") {
-    const ap = sec.airports[c.ap], nav = joinNav(p, ap, c.ap);
-    p.mode = "land"; p.landAp = c.ap; p.th = null; p.cmds++;
-    if (nav === "atvor") { p.nav = "approach"; p.talt = 0; } else p.nav = nav;
+    /* the shortest way onto the centerline, wherever it is: not back round
+     * by the IAF when it is already lined up or crossing the final */
+    p.mode = "land"; p.landAp = c.ap; p.th = null; p.cmds++; p.nav = "join";
   }
   return true;
 }
@@ -1098,10 +1108,23 @@ function stepPlane(S, p) {
    * was told, because it is taking off and not hovering; the clearance's
    * turn and climb start from the dot after. */
   const climbout = p.climbout;
+  let level = false;
   if (climbout) { p.climbout = false; p.alt = Math.max(1, p.alt); }
   else if (p.nav) {
     const ap = sec.airports[p.mode === "land" ? p.landAp : (p.toAp != null ? p.toAp : 0)];
     const iaf = iafOf(ap), vor = vorOf(ap);
+    if (p.mode === "land" && p.nav !== "approach") p.nav = "join";      /* a shift saved before joins existed */
+    if (p.nav === "join") {
+      /* judged at the height it is going to, so a climb is not cut short */
+      const top = Math.max(p.alt, p.talt == null ? 0 : p.talt);
+      if (joinsFinal(ap, p.x, p.y, p.h, top)) { p.nav = "approach"; p.talt = 0; }
+      else {
+        const nh = navHeading(sec, p, (x, y, h) => joinsFinal(ap, x, y, h, top));
+        if (nh >= 0) p.h = nh;
+      }
+    }
+    /* "approach": straight down the runway heading, level until the slope */
+    if (p.nav === "approach") level = finalDist(ap, p.x, p.y) > p.alt;
     if (p.nav === "iaf") {
       if (p.x === iaf.x && p.y === iaf.y && p.h === ap.rwy) p.nav = "vor";
       else {
@@ -1111,20 +1134,13 @@ function stepPlane(S, p) {
     }
     if (p.nav === "vor") {
       if (p.x === vor.x && p.y === vor.y) {
-        if (p.mode === "land") { p.nav = "approach"; p.talt = 0; }
-        else { p.nav = "pattern"; p.pat = 0; if (p.mode === "fly") p.mode = "hold"; p.h = (p.h + (p.holdDir > 0 ? 1 : 7)) % 8; }
+        p.nav = "pattern"; p.pat = 0; if (p.mode === "fly") p.mode = "hold"; p.h = (p.h + (p.holdDir > 0 ? 1 : 7)) % 8;
       }
-    } else if (p.nav === "pattern") {
-      if (p.x === vor.x && p.y === vor.y && p.h === ap.rwy) {
-        if (p.mode === "land") { p.nav = "approach"; p.talt = 0; }
-        else p.h = (p.h + (p.holdDir > 0 ? 1 : 7)) % 8;
-      } else p.h = (p.h + (p.holdDir > 0 ? 1 : 7)) % 8;
-    }
-    /* "approach": straight down the runway heading, descending */
+    } else if (p.nav === "pattern") p.h = (p.h + (p.holdDir > 0 ? 1 : 7)) % 8;
   } else if (p.th !== null && p.th !== p.h) {
     p.h = (p.h + (p.tdir < 0 ? 7 : 1)) % 8;
   }
-  if (!climbout && p.talt !== null && p.talt !== p.alt) {
+  if (!climbout && !level && p.talt !== null && p.talt !== p.alt) {
     p.alt += p.talt > p.alt ? 1 : -1;
     if (p.alt === 0) {
       /* the ground: the airport must be straight ahead, close, and the
@@ -1633,7 +1649,7 @@ function showHelp(tab = 0) {
       <h3>When they act</h3><p>The pilot takes about four seconds to take a command in, then acts at the next dot. Sent just before a plane reaches a dot, it flies through that one and turns at the one after. A second command before the first is acted on replaces it; once the first is on the air, the controller says "correction". The <b>Learning</b> scope (<kbd>L</kbd>, or Settings) marks the dot where each command will take hold, and turns two planes amber one dot before they lose separation.</p>
       <h3>Your standing</h3><p>The header counts the shift's <b>conflict</b> seconds and <b>delay</b> minutes as they happen: under 30 seconds of conflict is a promotion, over a minute is the end of a career, and so are a crash, a bad exit or 45 minutes of delay. A trainee is never fired.</p>
       <h3>Hold</h3><p>Right or left turns at the airport's VOR, eight miles round, at the height given. Arrivals do this on their own when they get there.</p>
-      <h3>Land</h3><p>Height <b>0</b> is the landing clearance, as on the C64. An arrival lands at its own airport; an overflight or an emergency with none takes the runway the heading points down (National's is north, Dulles's east), or the nearest. The plane flies to the VOR, turns down the runway and descends 1,000 feet a mile. From 5,000 feet at the VOR that is the field exactly. Lower is fine; it rolls on to the runway. Once on the ground roll nothing can turn it.</p>
+      <h3>Land</h3><p>Height <b>0</b> is the landing clearance, as on the C64. An arrival lands at its own airport; an overflight or an emergency with none takes the runway the heading points down (National's is north, Dulles's east), or the nearest. The plane takes the shortest way onto the runway's centerline, straight in if it is already lined up, and descends 1,000 feet a mile, flying level until it meets that slope: from 5,000 feet that is the VOR, from 3,000 three miles out. A plane too high for where it joins has to circle out to get down. Once on the ground roll nothing can turn it.</p>
       <h3>Takeoff</h3><p>A departure on the board takes the heading and height you send as its clearance. It climbs from the runway, and it must not go while another plane is on short final.</p>
       <h3>Say</h3><p>Asks the pilot for his heading and height, and his fuel if it is short.</p>`],
     ["Facilities", SECTORS.map((s, i) => `<h3>${i + 1}. ${esc(s.name)}</h3><p>${esc(s.blurb)}</p>`).join("") + `
