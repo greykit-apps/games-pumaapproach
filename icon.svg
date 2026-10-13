@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="#05070f"/>
+  <!-- A radar scope: two rings, a sweep, and a plane blip with its three
+       altitude bars under it, the way Kennedy Approach drew them. -->
+  <circle cx="32" cy="32" r="24" fill="#0a0e1a" stroke="#2b7f92" stroke-width="2"/>
+  <circle cx="32" cy="32" r="13" fill="none" stroke="#1b2540" stroke-width="1.5"/>
+  <path d="M32 32 L32 8 A24 24 0 0 1 52.8 20 Z" fill="#54f2ff" opacity=".22"/>
+  <path d="M32 32 L52.8 20" stroke="#54f2ff" stroke-width="2" stroke-linecap="round"/>
+  <g fill="#54f2ff">
+    <path d="M22 26 l9 -5 l-2 7 l5 2 l-9 5 l1 -6 z"/>
+    <rect x="21" y="38" width="12" height="2"/>
+    <rect x="21" y="42" width="12" height="2"/>
+    <rect x="21" y="46" width="12" height="2"/>
+  </g>
+</svg>

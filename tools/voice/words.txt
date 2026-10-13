@@ -1,0 +1,62 @@
+# key|text spoken   (lines starting with # are ignored)
+# digits
+0|zero
+1|one
+2|two
+3|three
+4|four
+5|five
+6|six
+7|seven
+8|eight
+9|niner
+thousand|thousand
+# airlines
+united|united
+american|american
+delta|delta
+airfrance|air france
+november|november
+puma|pooma
+# controller
+turn|turn
+left|left
+right|right
+heading|heading
+climb|climb
+descend|descend
+and|and
+maintain|maintain
+hold|hold
+at|at
+the|the
+vor|V O R
+cleared|cleared
+to|to
+land|land
+for|for
+takeoff|takeoff
+say|say
+altitude|altitude
+contact|contact
+tower|tower
+good|good
+day|day
+# pilot
+roger|roger
+correction|correction
+turning|turning
+climbing|climbing
+descending|descending
+holding|holding
+minutes|minutes
+fuel|fuel
+emergency|emergency
+mayday|mayday
+unable|unable
+runway|runway
+in|in
+sight|sight
+rolling|rolling
+with|with
+you|you
