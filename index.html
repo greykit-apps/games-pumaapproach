@@ -240,6 +240,23 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
 .facility button:disabled span { color: var(--dim); }
 .ladder td { padding: 2px 10px 2px 0; }
 .ladder td.me { color: var(--accent); font-weight: 600; }
+.keymap { display: block; width: 100%; max-width: 400px; height: auto; margin: 2px auto 12px; font-family: var(--font-mono); font-size: 12px; }
+.keymap .k rect { fill: var(--panel2); stroke: var(--line); }
+.keymap .k text { fill: var(--dim); text-anchor: middle; dominant-baseline: central; opacity: .6; }
+.keymap .k.on rect { stroke: var(--accent); }
+.keymap .k.on text { fill: var(--text); font-weight: 600; opacity: 1; }
+.keymap .leads polyline { fill: none; stroke: var(--lit); }
+.keymap .leads circle { fill: var(--accent); }
+.keymap .leads text { fill: var(--ink); dominant-baseline: central; }
+/* a drawer in a help sheet: shut, it is one line in the h3's voice */
+.gk-sheet .drawer { border-top: 1px solid var(--line); padding-top: 10px; }
+.gk-sheet .drawer summary { cursor: pointer; list-style: none; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.gk-sheet .drawer summary::-webkit-details-marker { display: none; }
+.gk-sheet .drawer summary::before { content: "▸"; display: inline-block; width: 1.4em; transition: transform .15s; }
+.gk-sheet .drawer[open] summary::before { transform: rotate(90deg); }
+.gk-sheet .drawer summary:hover, .gk-sheet .drawer summary:focus-visible { color: var(--text); outline: none; }
+.gk-sheet .drawer summary:focus-visible { box-shadow: 0 0 0 1px var(--accent); }
+.gk-sheet .drawer[open] summary { margin-bottom: 4px; }
 
 /* ---- phones: the band goes back into the flow above the scope, and the
    scope keeps a readable mile (14px) and pans sideways when the screen is
@@ -1729,6 +1746,71 @@ const GLYPH_KEY = `<div class="glyph-key">
 </div>
 <p class="gk-note">On the Learning scope a height a plane is leaving shows as an amber ghost bar, and two planes a dot from losing separation are boxed in amber.</p>`;
 const CREDIT = 'Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a>';
+
+/* the left hand and the numpad, drawn: 34px caps on a 46px pitch, and a
+   leader from each key out to what it does. A key is [cap, code, x, y, w, h];
+   a leader is [code, side, ...lines], side L/R/T/B saying where its label
+   sits off the last point of its first line. The words come from KEYS, so
+   a key moved in LAYOUTS relabels itself; the leaders' routes through the
+   gaps are hand-laid and would need moving with it. */
+const KEYMAP_ACT = { hdgL: "heading left", hdgR: "heading right", altUp: "height up", altDown: "height down",
+  holdL: "hold left", holdR: "hold right", status: "say", send: "send", fast: "fast time" };
+function keymap(name, w, h, keys, leaders) {
+  const caps = keys.map(([cap, code, x, y, kw, kh]) =>
+    `<g class="k${KEYS[code] ? " on" : ""}"><rect x="${x}" y="${y}" width="${kw}" height="${kh}" rx="3"/><text x="${x + kw / 2}" y="${y + kh / 2}">${cap}</text></g>`).join("");
+  const off = { L: [-5, 0, "end"], R: [5, 0, "start"], T: [0, -9, "middle"], B: [0, 9, "middle"] };
+  const leads = leaders.map(([code, side, ...lines]) => {
+    const [x, y] = lines[0][lines[0].length - 1], [dx, dy, anchor] = off[side];
+    return lines.map(l => `<polyline points="${l.join(" ")}"/><circle cx="${l[0][0]}" cy="${l[0][1]}" r="2"/>`).join("") +
+      `<text x="${x + dx}" y="${y + dy}" text-anchor="${anchor}">${KEYMAP_ACT[KEYS[code]]}</text>`;
+  }).join("");
+  const said = leaders.map(([code]) => keys.find(k => k[1] === code)[0].replace("⏎", "Enter") + " " + KEYMAP_ACT[KEYS[code]]).join(", ");
+  return `<svg class="keymap" viewBox="0 0 ${w} ${h}" role="img" aria-label="${name}: ${said}"><g class="caps">${caps}</g><g class="leads">${leads}</g></svg>`;
+}
+const KEYMAP_K = 34, KEYMAP_P = 46, KEYMAP_G = KEYMAP_P - KEYMAP_K;
+function keymapLeft() {
+  const K = KEYMAP_K, P = KEYMAP_P, X = 112, Y = 34, O = [0, 12, 35];   // each row's stagger
+  const kx = (c, r) => X + O[r] + c * P, ky = r => Y + r * P, cy = r => ky(r) + K / 2;
+  const L = X - 18, R = kx(2, 2) + K + 16, B = ky(3) + K + 10, sx = kx(1, 2) + 23, sw = 136;
+  const keys = [..."QWEASDZXC"].map((c, i) => [c, "Key" + c, kx(i % 3, i / 3 | 0), ky(i / 3 | 0), K, K]);
+  keys.push(["space", "Space", sx, ky(3), sw, K]);
+  const side = (code, c, r, s) => [code, s, s === "L" ? [[kx(c, r), cy(r)], [L, cy(r)]] : [[kx(c, r) + K, cy(r)], [R, cy(r)]]];
+  return keymap("Left hand", 400, 234, keys, [
+    side("KeyQ", 0, 0, "L"), side("KeyA", 0, 1, "L"), side("KeyZ", 0, 2, "L"),
+    ["KeyW", "T", [[kx(1, 0) + K / 2, Y], [kx(1, 0) + K / 2, Y - 18]]],
+    side("KeyE", 2, 0, "R"), side("KeyD", 2, 1, "R"), side("KeyC", 2, 2, "R"),
+    // S drops between Z and X, which the stagger leaves under its middle
+    ["KeyS", "B", [[kx(1, 1) + K / 2, ky(1) + K], [kx(1, 1) + K / 2, B]]],
+    ["Space", "B", [[sx + sw / 2, ky(3) + K], [sx + sw / 2, B]]],
+  ]);
+}
+function keymapNumpad() {
+  // rows a little further apart than columns, so a label in a gap between
+  // rows has room from the labels on the rows either side
+  const K = KEYMAP_K, P = KEYMAP_P, G = KEYMAP_G, PY = P + 6, GY = PY - K, X = 112, Y = 34;
+  const kx = c => X + c * P, ky = r => Y + r * PY, cx = c => kx(c) + K / 2, cy = r => ky(r) + K / 2;
+  const gx = c => kx(c + 1) - G / 2, gy = r => ky(r + 1) - GY / 2;   // the gap after a column, a row
+  const L = X - 18, R = kx(3) + K + 16, T = Y - 18, B = ky(4) + K + 10, tall = 2 * PY - GY;
+  const key = (cap, code, c, r, wu = 1, hu = 1) => [cap, code, kx(c), ky(r), wu * P - G, hu * PY - GY];
+  const keys = [key("num", "NumLock", 0, 0), key("/", "NumpadDivide", 1, 0), key("*", "NumpadMultiply", 2, 0), key("−", "NumpadSubtract", 3, 0),
+    key("7", "Numpad7", 0, 1), key("8", "Numpad8", 1, 1), key("9", "Numpad9", 2, 1), key("+", "NumpadAdd", 3, 1, 1, 2),
+    key("4", "Numpad4", 0, 2), key("5", "Numpad5", 1, 2), key("6", "Numpad6", 2, 2),
+    key("1", "Numpad1", 0, 3), key("2", "Numpad2", 1, 3), key("3", "Numpad3", 2, 3), key("⏎", "NumpadEnter", 3, 3, 1, 2),
+    key("0", "Numpad0", 0, 4, 2), key(".", "NumpadDecimal", 2, 4)];
+  const left = (code, r) => [code, "L", [[kx(0), cy(r)], [L, cy(r)]]];
+  return keymap("Numpad", 400, 304, keys, [
+    left("Numpad7", 1), left("Numpad4", 2), left("Numpad1", 3), left("Numpad0", 4),
+    // 5 and 2 both lower, so one leader takes both, out through the gap between 4 and 1
+    ["Numpad5", "L", [[cx(1), ky(2) + K], [cx(1), gy(2)], [L, gy(2)]], [[cx(1), ky(3)], [cx(1), gy(2)]]],
+    // 8 climbs out between / and *; 9 and 6 run right through the gaps either side of +
+    ["Numpad8", "T", [[cx(1), ky(1)], [cx(1), gy(0)], [gx(1), gy(0)], [gx(1), T]]],
+    ["Numpad9", "R", [[cx(2), ky(1)], [cx(2), gy(0)], [R, gy(0)]]],
+    ["Numpad6", "R", [[cx(2), ky(2) + K], [cx(2), gy(2)], [R, gy(2)]]],
+    ["NumpadEnter", "R", [[kx(3) + K, ky(3) + tall / 2], [R, ky(3) + tall / 2]]],
+    // 3 drops between . and Enter
+    ["Numpad3", "B", [[cx(2), ky(3) + K], [cx(2), gy(3)], [gx(2), gy(3)], [gx(2), B]]],
+  ]);
+}
 function showHelp(tab = 0) {
   openSheet("Help", { tab, tabs: [
     ["Playing", `
@@ -1758,16 +1840,13 @@ function showHelp(tab = 0) {
       ${[1, 2, 3, 4, 5, 6, 7].map(r => `<tr><td class="${career && career.rank === r ? "me" : ""}">${gsOf(r)}</td>${SECTORS.map((s, i) => { const sh = shiftFor(r, i); return "<td>" + (sh < 0 ? "—" : esc(SHIFTS[sh].name)) + "</td>"; }).join("")}</tr>`).join("")}</table>
       <p>A shift pays <b>$500 a rank</b> plus a bonus: <b>$100</b> per flight landed or handed off, <b>$200</b> per emergency landed, <b>−$100</b> per minute of delay. A plane is delayed once it has been with you longer than its trip should take.</p>`],
     ["Keys", `
-      <p>One hand on the mouse, the other on the keys, whichever hand that is. Three layouts do the same things: pick the one under your hand. The command panel's hints follow the one you used last.</p>
-      <table>
-      <tr><td></td><td><b>left hand</b></td><td><b>arrows</b></td><td><b>numpad</b></td></tr>
-      <tr><td>heading left, right</td><td><kbd>A</kbd> <kbd>D</kbd></td><td><kbd>←</kbd> <kbd>→</kbd></td><td><kbd>4</kbd> <kbd>6</kbd></td></tr>
-      <tr><td>height up, down</td><td><kbd>W</kbd> <kbd>S</kbd></td><td><kbd>↑</kbd> <kbd>↓</kbd></td><td><kbd>8</kbd> <kbd>5</kbd></td></tr>
-      <tr><td>hold, left or right turns</td><td><kbd>Z</kbd> <kbd>C</kbd></td><td><kbd>[</kbd> <kbd>]</kbd></td><td><kbd>1</kbd> <kbd>3</kbd></td></tr>
-      <tr><td>say heading and height</td><td><kbd>Q</kbd></td><td><kbd>/</kbd></td><td><kbd>9</kbd></td></tr>
-      <tr><td>send; at height 0, clear to land</td><td><kbd>E</kbd></td><td><kbd>Enter</kbd></td><td><kbd>7</kbd> <kbd>Enter</kbd></td></tr>
-      <tr><td>fast time, while held</td><td><kbd>Space</kbd></td><td><kbd>Space</kbd> <kbd>.</kbd></td><td><kbd>0</kbd></td></tr>
-      </table>
+      <p>One hand on the mouse, the other on the keys, whichever hand that is. Two layouts do the same things: pick the one under your hand. The command panel's hints follow the one you used last.</p>
+      <p>Send at height 0 is the landing clearance. Fast time runs only while its key is held.</p>
+      <h3>Left hand</h3>
+      ${keymapLeft()}
+      <h3>Numpad</h3>
+      ${keymapNumpad()}
+      <details class="drawer"><summary>Keys that work everywhere</summary>
       <table>
       <tr><td><kbd>Space</kbd></td><td>only ever runs the clock, whatever has the focus; a focused button is pressed with <kbd>Enter</kbd></td></tr>
       <tr><td><kbd>Esc</kbd></td><td>deselect; with nothing selected, put the tips away; in a replay, back to the report (MENU in the header leaves the shift; it waits)</td></tr>
@@ -1780,7 +1859,8 @@ function showHelp(tab = 0) {
       <tr><td><kbd>Backspace</kbd></td><td>MENU: back to the title; the shift waits</td></tr>
       <tr><td><kbd>F6</kbd> <kbd>Shift</kbd>+<kbd>F6</kbd></td><td>move the focus between the header, the board and the command panel</td></tr>
       <tr><td><kbd>H</kbd></td><td>this help</td></tr>
-      </table>`],
+      </table>
+      </details>`],
   ] });
 }
 function showAbout() {
