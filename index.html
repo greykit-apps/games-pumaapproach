@@ -46,7 +46,11 @@
 html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 13px; }
 body { overflow: hidden; -webkit-text-size-adjust: 100%; }
 button { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; padding: 6px 10px; }
-button:hover:not(:disabled) { border-color: var(--lit); background: var(--panel2); }
+@media (hover: hover) {
+  button:hover:not(:disabled) { border-color: var(--lit); background: var(--panel2); }
+  /* a lit button stays lit under the pointer, a shade brighter, as Send does */
+  button.on:hover:not(:disabled) { color: var(--bg); background: #8af6ff; border-color: #8af6ff; }
+}
 button:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 button:disabled { opacity: .55; cursor: default; }
 button.on { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
@@ -72,8 +76,8 @@ a { color: var(--steel); }
 #hud .btns { display: flex; gap: 6px; }
 #hud .btns button { padding: 4px 9px; font-size: 12px; min-width: 32px; }
 #hud .btns button[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
-#btn-fast.on { color: var(--bg); background: var(--warn); border-color: var(--warn); }
-#speed { color: var(--warn); font-size: 11px; display: none; }
+#btn-fast.on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+#speed { color: var(--ink); font-size: 11px; display: none; }
 #speed.on { display: inline; }
 
 #main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 27vw, 440px); }
@@ -94,14 +98,14 @@ a { color: var(--steel); }
 #lamps-row { display: flex; gap: 8px; align-items: start; }
 /* an unlit lamp is the cabinet's furniture: there, readable, and quiet, so
    the one that lights is the only thing in the row */
-.lamp { font-size: 11px; letter-spacing: .08em; padding: 2px 6px; border: 1px solid #121a2e; border-radius: 2px; color: #4d5a78; background: var(--bg); transition: color .15s, border-color .15s, background .15s; }
+.lamp { font-size: 11px; letter-spacing: .08em; padding: 2px 6px; border: 1px solid var(--line); border-radius: 2px; color: var(--dim); background: var(--bg); transition: color .15s, border-color .15s, background .15s; }
 .lamp.lit { color: var(--bg); background: var(--danger); border-color: var(--danger); font-weight: 600; animation: lamp .5s steps(2) infinite; }
 .lamp.lit.amber { background: var(--warn); border-color: var(--warn); }
 @keyframes lamp { 50% { opacity: .55; } }
 #scope { display: block; background: var(--scope); border: 1px solid var(--line); border-radius: 2px; touch-action: none; max-width: 100%; max-height: 100%; }
 /* the banner: an instant replay's, at the scope's foot, clear of the radio;
    a pause's, centred on the scope, which dims under it */
-#banner { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 6px 14px; background: rgba(5,7,15,.85); border: 1px solid var(--warn); color: var(--warn); letter-spacing: .2em; font-size: 12px; pointer-events: none; display: none; white-space: nowrap; }
+#banner { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 6px 14px; background: rgba(5,7,15,.85); border: 1px solid var(--lit); color: var(--text); letter-spacing: .2em; font-size: 12px; pointer-events: none; display: none; white-space: nowrap; }
 #banner.on { display: block; }
 #banner.pause { bottom: auto; transform: translate(-50%, -50%); padding: 12px 22px; font-size: 18px; font-weight: 600; text-align: center; background: rgba(5,7,15,.92); }
 #banner.pause small { display: block; margin-top: 4px; font-size: 11px; font-weight: 400; letter-spacing: .08em; color: var(--ink); }
@@ -139,6 +143,7 @@ a { color: var(--steel); }
 .strip .st { text-align: right; font-size: 12px; letter-spacing: .06em; color: var(--dim); }
 .strip .st.warn { color: var(--warn); font-weight: 600; }
 .strip .st.good { color: var(--good); }
+.strip .st.ready { color: var(--accent); }
 .strip .st.bad { color: var(--danger); font-weight: 600; }
 .strip.conf { border-color: var(--danger); }
 .strip.em .call { color: var(--warn); }
@@ -157,7 +162,7 @@ a { color: var(--steel); }
 #panel .now .fuel.low { color: var(--warn); }
 /* one line, always there, so the panel never jumps: what the command being
    set up will do that the player may not mean */
-#panel .tip { min-height: 16px; padding: 0 4px 6px; font-size: 11px; line-height: 1.4; color: var(--warn); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#panel .tip { min-height: 18px; padding: 0 4px 6px; font-size: 12px; line-height: 1.4; color: var(--warn); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cmd { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; align-items: start; }
 .compass { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 3px; }
 .compass button { padding: 0; font-size: 12px; min-height: 0; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -169,13 +174,13 @@ a { color: var(--steel); }
 .alts { display: grid; grid-template-columns: 58px; gap: 3px; }
 .alts button { padding: 0; height: 32px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .alts button[data-alt="0"] { color: var(--good); }
-.alts button[data-alt="0"].on { color: var(--bg); background: var(--good); border-color: var(--good); }
+.alts button[data-alt="0"].on, .alts button[data-alt="0"].on:hover:not(:disabled) { color: var(--bg); background: var(--good); border-color: var(--good); }
 .acts { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .acts button { font-size: 11px; padding: 6px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .acts button.primary { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; height: 40px; }
 .acts button.primary:hover:not(:disabled) { background: #8af6ff; border-color: #8af6ff; }
 .acts button.primary kbd { color: var(--bg); border-color: rgba(5,7,15,.35); }
-#log { height: 100px; overflow-y: auto; border-top: 1px solid var(--line); padding: 6px 10px; font-size: 11px; line-height: 1.5; color: var(--dim); }
+#log { height: 100px; overflow-y: auto; border-top: 1px solid var(--line); padding: 6px 10px; font-size: 12px; line-height: 1.5; color: var(--dim); }
 #log .ctl { color: var(--accent); opacity: .8; }
 #log .alarm { color: var(--danger); }
 #log .sys { color: var(--ink); }
@@ -220,14 +225,16 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
 .incident button { grid-row: span 2; font-size: 12px; padding: 4px 10px; }
 /* Help's drawing of a plane on the scope, on the scope's own ground */
 .glyph-key { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 4px 0 6px; padding: 10px 12px; background: var(--scope); border: 1px solid var(--line); border-radius: 2px; }
-.glyph-key svg { flex: 1 1 240px; max-width: 290px; height: auto; }
+.glyph-key svg { flex: 1 1 280px; max-width: 340px; height: auto; }
 .row.quiet { margin-top: 6px; }
+.gk-sheet .gk-body .row button.go { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+@media (hover: hover) { .gk-sheet .gk-body .row button.go:hover { background: #8af6ff; border-color: #8af6ff; } }
 .row.quiet button { color: var(--dim); }
 .gk-title .gk-sub { margin: 10px 0 0; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--dim); text-align: center; padding-left: .3em; }
 .facility button b .rec { color: var(--good); font-weight: 400; font-size: 11px; margin-left: 6px; }
 .facility { display: grid; grid-template-columns: 1fr; gap: 6px; margin: 0 0 10px; }
 .facility button { text-align: left; display: flex; gap: 10px; align-items: baseline; padding: 8px 10px; }
-.facility button b { min-width: 16ch; color: var(--text); }
+.facility button b { flex: 0 0 21ch; color: var(--text); }
 .facility button span { color: var(--dim); font-size: 11px; }
 .facility button:disabled { opacity: .55; }
 .facility button:disabled span { color: var(--dim); }
@@ -245,7 +252,13 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
   #scope-wrap { padding: 4px; min-height: 0; display: block; place-items: normal; overflow-x: auto; touch-action: pan-x pan-y; scrollbar-width: thin; scrollbar-color: var(--lit) transparent; }
   #scope-wrap::-webkit-scrollbar { height: 4px; }
   #scope-wrap::-webkit-scrollbar-thumb { background: var(--lit); border-radius: 2px; }
-  #btn-zoom { display: inline-block; }
+  #btn-zoom { display: inline-block; min-height: 32px; padding: 4px 12px; }
+  #hud .btns button { min-height: 36px; }
+  /* the lamps, one line, only those lit: the row keeps its height (ZOOM is
+     in it), so the scope never moves when one comes on */
+  #lamps-row { min-height: 32px; align-items: center; }
+  #lamps { flex-wrap: nowrap; overflow: hidden; }
+  .lamp:not(.lit) { display: none; }
   /* a plane selected: the board and the log step aside, so the whole
      command panel sits under the scope; Cancel brings them back */
   #game.has-sel #strips, #game.has-sel #log { display: none; }
@@ -260,14 +273,16 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
   #hud .btns { margin-left: auto; }
   .lamp { padding: 2px 5px; }
   .compass { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); }
-  .alts { grid-template-columns: 64px; }
-  .alts button { height: 38px; }
+  /* the heights two abreast, still reading top-down, so the whole panel
+     fits under a zoomed scope */
+  .alts { grid-template-columns: repeat(2, 56px); }
+  .alts button { height: 44px; }
   #notice, #coach { position: sticky; left: 8px; transform: none; max-width: none; margin: 6px 4px 0; }
 }
 /* without a keyboard the key hints go, whole phrases at a time, so what is
    left still reads as a sentence; .tp is the touch wording in their place */
 .tp { display: none; }
-@media (pointer: coarse) { .acts button { padding: 10px 8px; } .kb, kbd.hint, #title .gk-menu kbd { display: none; } .tp { display: inline; } }
+@media (pointer: coarse) { .acts button { padding: 9px 8px; } .kb, kbd.hint, #title .gk-menu kbd { display: none; } .tp { display: inline; } }
 @media (prefers-reduced-motion: reduce) { .lamp.lit { animation: none; } }
 </style>
 </head>
@@ -287,7 +302,7 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
       <button id="btn-aids" aria-label="Scope aids" aria-pressed="false" title="Scope aids: Learning or Classic (L)">LEARN</button>
       <button id="btn-help" aria-label="Help" title="Help (H)">?</button>
       <button id="mute-btn" aria-label="Sound" aria-pressed="true" title="Sound (M)">♪</button>
-      <button id="btn-menu" aria-label="Menu" title="Back to the title screen. The shift waits.">MENU</button>
+      <button id="btn-menu" aria-label="Menu" title="Back to the title screen; the shift waits (Backspace)">MENU</button>
     </div>
   </header>
   <div id="main">
@@ -1620,7 +1635,7 @@ function openSheet(title, { tabs, html, onClick, onClose, onKey, tab = 0 }) {
   document.body.appendChild(el);
   sheet = { el, onClose, onKey, back };
   behind(true);
-  (el.querySelector("[autofocus]") || el.querySelector('[role="tab"][aria-selected="true"]') || el.querySelector("[data-x]")).focus();
+  (el.querySelector("[autofocus]") || el.querySelector('[role="tab"][aria-selected="true"]') || el.querySelector("[data-x]")).focus({ preventScroll: true });
   return api;
 }
 function closeSheet() {
@@ -1695,21 +1710,21 @@ function forgetEverything() {
 /* the plane on the scope, taken apart, and what the Learning scope adds */
 const GLYPH_FONT = 'font-family="ui-monospace, Menlo, Consolas, monospace"';
 const GLYPH_KEY = `<div class="glyph-key">
-  <svg viewBox="0 0 290 100" role="img" aria-label="A plane on the scope: its flight number on top, an arrowhead pointing the way it flies, its letter beside, and a bar for each thousand feet; the bottom bar is where it really is." ${GLYPH_FONT}>
+  <svg viewBox="0 0 340 100" role="img" aria-label="A plane on the scope: its flight number on top, an arrowhead pointing the way it flies, its letter beside, and a bar for each thousand feet; the bottom bar is where it really is." ${GLYPH_FONT}>
     <g fill="#54f2ff"><text x="40" y="14" font-size="12" text-anchor="middle" opacity=".75">DL546</text>
       <path d="M40 22 L51 44 L40 38 L29 44 Z"/><text x="56" y="40" font-size="17">A</text>
       <rect x="28" y="58" width="24" height="3"/><rect x="28" y="66" width="24" height="3"/><rect x="28" y="74" width="24" height="3"/></g>
     <g stroke="#2a4064" fill="none"><path d="M64 10 H118"/><path d="M68 34 H118"/><path d="M52 44 L60 52 H118"/><path d="M56 67 H118"/><path d="M56 76 L64 84 H118"/></g>
-    <g fill="#8b96b8" font-size="11"><text x="122" y="14">flight number</text><text x="122" y="38">its letter</text><text x="122" y="56">arrowhead: the way it flies</text><text x="122" y="71">a bar per 1,000 ft: 3,000</text><text x="122" y="88">bottom bar: where it really is</text></g>
+    <g fill="#8b96b8" font-size="12"><text x="122" y="14">flight number</text><text x="122" y="38">its letter</text><text x="122" y="56">arrowhead: the way it flies</text><text x="122" y="71">a bar per 1,000 ft: 3,000</text><text x="122" y="88">bottom bar: where it really is</text></g>
   </svg>
-  <svg viewBox="0 0 290 100" role="img" aria-label="On the Learning scope: a green outline bar is height the plane is climbing to, a white ring marks the dot where it will turn, and a dashed arrow its new heading." ${GLYPH_FONT}>
+  <svg viewBox="0 0 340 100" role="img" aria-label="On the Learning scope: a green outline bar is height the plane is climbing to, a white ring marks the dot where it will turn, and a dashed arrow its new heading." ${GLYPH_FONT}>
     <g fill="#54f2ff"><path d="M51 36 L29 25 L35 36 L29 47 Z"/><text x="56" y="40" font-size="17">B</text>
       <rect x="28" y="66" width="24" height="3"/><rect x="28" y="74" width="24" height="3"/></g>
     <rect x="28.5" y="58.5" width="23" height="2.5" fill="none" stroke="#4ade6a" stroke-width="1.5"/>
     <circle cx="80" cy="75" r="7" fill="none" stroke="#fff" stroke-width="1.5"/>
     <path d="M85 70 L100 55" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M104 51 L96 54 L101 59 Z" fill="#fff"/>
     <g stroke="#2a4064" fill="none"><path d="M56 59 L64 20 H138"/><path d="M106 50 H138"/><path d="M88 80 L96 88 H138"/></g>
-    <g fill="#8b96b8" font-size="11"><text x="142" y="17">green outline:</text><text x="142" y="30">climbing to 3,000</text><text x="142" y="47">dashed arrow:</text><text x="142" y="60">its new heading</text><text x="142" y="85">ring: where it turns</text></g>
+    <g fill="#8b96b8" font-size="12"><text x="142" y="17">green outline:</text><text x="142" y="30">climbing to 3,000</text><text x="142" y="47">dashed arrow:</text><text x="142" y="60">its new heading</text><text x="142" y="85">ring: where it turns</text></g>
   </svg>
 </div>
 <p class="gk-note">On the Learning scope a height a plane is leaving shows as an amber ghost bar, and two planes a dot from losing separation are boxed in amber.</p>`;
@@ -1717,6 +1732,7 @@ const CREDIT = 'Built by <a href="https://greykit.com/" target="_blank" rel="noo
 function showHelp(tab = 0) {
   openSheet("Help", { tab, tabs: [
     ["Playing", `
+      <p class="gk-note">First time? Start a career at Level 1: the coach walks you through your first plane.</p>
       <p><b>You are the approach controller.</b> Every plane on the scope is yours until it lands at one of your airports or leaves through the fix on its flight plan. Two planes within <b>3 miles</b> of each other need <b>1,000 feet</b> between their heights, and on neighbouring dots, <b>2,000 feet</b>.</p>
       ${GLYPH_KEY}
       <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile.</p>
@@ -1761,6 +1777,8 @@ function showHelp(tab = 0) {
       <tr><td><kbd>L</kbd></td><td>scope aids: Learning or Classic</td></tr>
       <tr><td><kbd>P</kbd> <kbd>Pause</kbd></td><td>pause</td></tr>
       <tr><td><kbd>M</kbd></td><td>sound on or off</td></tr>
+      <tr><td><kbd>Backspace</kbd></td><td>MENU: back to the title; the shift waits</td></tr>
+      <tr><td><kbd>F6</kbd> <kbd>Shift</kbd>+<kbd>F6</kbd></td><td>move the focus between the header, the board and the command panel</td></tr>
       <tr><td><kbd>H</kbd></td><td>this help</td></tr>
       </table>`],
   ] });
@@ -1798,16 +1816,17 @@ function showFacility(practice) {
   const free = practice || !!(career && career.unlocked);
   let pickS = 0, pickSh = 0;
   openSheet(practice ? "Custom shift" : "Next shift", { html: () => `
-    ${free ? `<p>${practice ? "Any facility, any shift, nothing on your record." : `<b>${gsOf(rank)}</b>, ${money(career.total)} so far, cleared for every facility and shift.`} Pick a shift, then a facility.</p>
+    ${free ? `<p>${practice ? "Any facility, any shift, nothing on your record. Facilities run easiest to hardest." : `<b>${gsOf(rank)}</b>, ${money(career.total)} so far, cleared for every facility and shift.`} Pick a shift, then a facility.</p>
       <div class="row">${SHIFTS.map((s, i) => `<button data-sh="${i}" class="${i === pickSh ? "on" : ""}">${esc(s.name)} · ${s.min} min</button>`).join("")}</div>` :
       `<p><b>${gsOf(rank)}</b>, ${money(career.total)} so far. Each facility offers the shift your rank works there.</p>`}
     <div class="facility">${SECTORS.map((s, i) => { const sh = free ? pickSh : shiftFor(rank, i); return `<button data-sec="${i}" ${sh < 0 ? "disabled" : ""} ${i === 0 ? "autofocus" : ""}><b>${i + 1}. ${esc(s.name)}</b><span>${sh < 0 ? opensAt(rank, i) : esc(SHIFTS[sh].name) + " · " + SHIFTS[sh].min + " min"}</span></button>`; }).join("")}</div>`,
     onKey: e => digitPick(e, "data-sec"),
-    onClick: (b, api) => {
+    onClick: async (b, api) => {
       if (b.dataset.sh !== undefined) { pickSh = +b.dataset.sh; api.refresh(); return; }
       if (b.dataset.sec === undefined) return;
       pickS = +b.dataset.sec;
-      const sh = free ? pickSh : shiftFor(rank, pickS);
+      const sh = free ? pickSh : shiftFor(rank, pickS), saved = shiftSaved();
+      if (saved && !await confirmSheet(`Your ${SECTORS[saved.sector].name} ${SHIFTS[saved.shift].name} shift in progress will be lost.`, "Start the new shift", "Start a new shift?")) return;
       closeSheet();
       startShift(newShift({ sector: pickS, shift: sh, rank, seed: (Date.now() ^ (Math.random() * 1e9)) | 0, practice }));
     } });
@@ -2019,6 +2038,12 @@ function whyText(S, t) {
   if (S.rank >= MAX_RANK) return "The top of the ladder: " + conf + ", no errors.";
   return "";
 }
+/* a practice shift is on no record: say what happened, not what it costs */
+function practiceWhy(t) {
+  if (t.major) return "Nothing here goes on your record. What happened is below, each with a replay from a minute before.";
+  if (t.conflictSec >= 30) return Math.round(t.conflictSec) + " s of conflict: on a scored shift, a promotion needs under 30.";
+  return t.completions ? "Clean: on a scored shift this would be a promotion." : "";
+}
 function settle() {
   if (S.report) return S.report;
   const t = tally(S); ui.lastTally = t;
@@ -2037,7 +2062,8 @@ function settle() {
     if (t.fired) { career = null; save(KEY_CAREER, null); } else save(KEY_CAREER, career);
   }
   if (S.practice && !replay) { careerLog.push({ when: Date.now(), sector: S.sector, shift: S.shift, rank: S.rank, pay: 0, verdict: t.major ? "errors" : "clean", practice: true }); save(KEY_LOG, careerLog); }
-  S.report = { t, verdict, kind, pay, why: replay ? "" : whyText(S, t), total: career ? career.total : 0, fired: t.fired };
+  if (S.practice && !replay && t.major) kind = "bad";
+  S.report = { t, verdict, kind, pay, why: replay ? "" : S.practice ? practiceWhy(t) : whyText(S, t), total: career ? career.total : 0, fired: !S.practice && !replay && t.fired };
   return S.report;
 }
 function endShift() {
@@ -2070,12 +2096,14 @@ function showReport() {
     </div>
     ${S.practice || replay ? "" : `<div class="report">${line("Salary", money(t.salary))}${line("Bonus", money(t.bonus))}${line("Career total", money(r.total))}</div>`}
     <div class="row">
-      <button data-r="continue" autofocus>${r.fired ? "Back to the title" : replay ? "Back to the report" : "Continue"}</button>
+      ${replay || r.fired ? "" : `<button data-r="next" class="go" autofocus>${S.practice ? "Another custom shift" : "Next shift"}</button>`}
+      <button data-r="continue" ${replay || r.fired ? "autofocus" : ""}>${r.fired ? "Back to the title" : replay ? "Back to the report" : "Title screen"}</button>
       ${replay ? "" : '<button data-r="replay" data-t="0">Instant replay</button>'}
     </div>`,
     onClick: (b) => {
       const r = b.dataset.r; if (!r) return;
-      if (r === "replay") { startReplay(S, +b.dataset.t || 0); return; }
+      if (r === "replay") { startReplay(S, +b.dataset.t || 0, b.dataset.id); return; }
+      if (r === "next") { const practice = S.practice; toTitle(); showFacility(practice); return; }
       /* back from a replay: the shift was settled when it ended; only show it */
       if (replay && replay.from) { backToReport(); return; }
       toTitle();
@@ -2087,13 +2115,13 @@ const INCIDENT = { crash: "CRASH", badexit: "BAD EXIT", emexit: "EXIT WITH AN EM
 function incidentsHTML() {
   const list = S.done.filter(d => INCIDENT[d.outcome]);
   if (!list.length) return "";
-  return `<div class="incidents"><h3>Incidents</h3>${list.map(d => `<div class="incident"><time>${clockAt(d.t * 7.5)}</time><b>${esc(d.tag || INCIDENT[d.outcome])}</b><button data-r="replay" data-t="${d.t}" aria-label="Replay ${esc(d.call)}, from a minute before">Replay</button><span>${esc(d.text || d.call)}</span></div>`).join("")}</div>`;
+  return `<div class="incidents"><h3>Incidents</h3>${list.map(d => `<div class="incident"><time>${clockAt(d.t * 7.5)}</time><b>${esc(d.tag || INCIDENT[d.outcome])}</b><button data-r="replay" data-t="${d.t}" data-id="${d.id}" aria-label="Replay ${esc(d.call)}, from a minute before">Replay</button><span>${esc(d.text || d.call)}</span></div>`).join("")}</div>`;
 }
 /* an instant replay: the shift again from its seed and its commands, run
    unseen up to a minute before `at`, then shown from there */
-function startReplay(from, at) {
+function startReplay(from, at, watch) {
   const st = newShift({ sector: from.sector, shift: from.shift, rank: from.rank, seed: from.seed, practice: from.practice });
-  const rp = { log: from.log.slice(), i: 0, from };
+  const rp = { log: from.log.slice(), i: 0, from, watch: watch || null };
   const to = Math.max(0, at - TPM);
   while (st.t < to) {
     while (rp.i < rp.log.length && rp.log[rp.i].t === st.t) command(st, rp.log[rp.i++].c);
@@ -2126,8 +2154,9 @@ function fitScope() {
   wrap.style.paddingTop = phone ? "" : band + 8 + "px";
   const cols = sec.W + 1, rows = sec.H - 1 + TOP_MI + BOTTOM_MI;
   const aw = wrap.clientWidth - (phone ? 8 : 16), ah = Math.max(200, wrap.clientHeight - 16 - band);
-  /* a phone fits the whole sector to its width; zoomed, a mile is 14px and it pans */
-  let w = zoom ? Math.max(aw, 14 * cols) : aw, h = w * rows / cols;
+  /* a phone fits the whole sector to its width; zoomed, a mile is 12px and it
+     pans, which leaves room for the command panel under it */
+  let w = zoom ? Math.max(aw, 12 * cols) : aw, h = w * rows / cols;
   if (!phone && h > ah) { h = ah; w = h * cols / rows; }
   dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.style.width = w + "px"; cv.style.height = h + "px";
@@ -2193,7 +2222,9 @@ function drawPlane(c, X, Y, h, alt, id, col, pitch, talt, pending) {
   c.save(); c.translate(X, ay); c.rotate(h * Math.PI / 4);
   c.beginPath(); c.moveTo(0, -pitch * .38); c.lineTo(pitch * .3, pitch * .28); c.lineTo(0, pitch * .1); c.lineTo(-pitch * .3, pitch * .28); c.closePath(); c.fill();
   c.restore();
-  c.textAlign = "left"; c.fillText(id, X + pitch * .5, ay); c.textAlign = "center";
+  c.textAlign = "left";
+  if (c === cx) { c.save(); c.strokeStyle = "#06101c"; c.lineWidth = 3 * dpr; c.lineJoin = "round"; c.strokeText(id, X + pitch * .5, ay); c.restore(); }
+  c.fillText(id, X + pitch * .5, ay); c.textAlign = "center";
   return ay;
 }
 function render() {
@@ -2206,8 +2237,10 @@ function render() {
   if (!sec._lanes) sec._lanes = lanes(sec);
   for (let y = 0; y < sec.H; y++) for (let x = 0; x < sec.W; x++) {
     const lane = sec._lanes.has(x + "," + y);
-    if (sec.mountains && sec.mountains(x, y)) { cx.strokeStyle = "#3a4a66"; cx.lineWidth = 1 * dpr; cx.beginPath(); cx.moveTo(gx(x) - pitch * .28, gy(y) + pitch * .2); cx.lineTo(gx(x), gy(y) - pitch * .22); cx.lineTo(gx(x) + pitch * .28, gy(y) + pitch * .2); cx.stroke(); continue; }
-    cx.fillStyle = lane ? "#2a4064" : "#182438";
+    if (sec.mountains && sec.mountains(x, y)) { cx.strokeStyle = "#5a6c8e"; cx.lineWidth = 1 * dpr; cx.beginPath(); cx.moveTo(gx(x) - pitch * .28, gy(y) + pitch * .2); cx.lineTo(gx(x), gy(y) - pitch * .22); cx.lineTo(gx(x) + pitch * .28, gy(y) + pitch * .2); cx.stroke(); continue; }
+    /* every fifth mile a brighter, larger dot, to count distance by */
+    if (x % 5 === 0 && y % 5 === 0) { cx.fillStyle = "#56709f"; cx.fillRect(gx(x) - 1.5 * dpr, gy(y) - 1.5 * dpr, 3 * dpr, 3 * dpr); continue; }
+    cx.fillStyle = lane ? "#4a6a9c" : "#3e5479";
     cx.fillRect(gx(x) - dpr, gy(y) - dpr, 2 * dpr, 2 * dpr);
   }
   /* the restricted zone */
@@ -2241,7 +2274,7 @@ function render() {
   /* the storm */
   if (S.storm) {
     const f = S.storm.phase / 4;
-    cx.fillStyle = "rgba(255,176,0,.22)"; cx.strokeStyle = "#ffb000"; cx.lineWidth = 1 * dpr;
+    cx.fillStyle = "rgba(148,160,196,.18)"; cx.strokeStyle = "#94a0c4"; cx.lineWidth = 1 * dpr;
     for (const [dx, dy] of STORM_SHAPE) {
       const x = S.storm.x + dx + f, y = S.storm.y + dy;
       if (x < -1 || x > sec.W) continue;
@@ -2289,10 +2322,17 @@ function render() {
     }
     /* the flight number, small, above the arrowhead */
     if (!small || p === sel) {
-      cx.save(); cx.font = `${Math.max(8 * dpr, pitch * .42)}px ${cx.font.split("px ")[1]}`; cx.globalAlpha = inConf || p === sel ? 1 : .75;
+      cx.save(); cx.font = `${Math.max(10 * dpr, pitch * .42)}px ${cx.font.split("px ")[1]}`; cx.globalAlpha = inConf || p === sel ? 1 : .85;
+      cx.strokeStyle = "#06101c"; cx.lineWidth = 3 * dpr; cx.lineJoin = "round"; cx.strokeText(shortCall(p), X, ay - pitch * .72);
       cx.fillText(shortCall(p), X, ay - pitch * .72); cx.restore();
     }
     if (p.mode === "final") { cx.fillStyle = "#4ade6a"; cx.fillText("↓", X - pitch * .7, ay); }
+    else if (prefs.aids === "learning" && offCourse(p)) { cx.fillStyle = "#ffb000"; cx.fillText("!", X - pitch * .7, ay); }
+    /* a replay of an incident: the plane it was about, ringed */
+    if (replay && replay.watch === p.id) {
+      cx.save(); cx.strokeStyle = "#ffffff"; cx.lineWidth = 1.5 * dpr; cx.setLineDash([4 * dpr, 3 * dpr]);
+      cx.beginPath(); cx.arc(X, (Y + ay) / 2, pitch * 1.25 + (Y - ay) / 2, 0, Math.PI * 2); cx.stroke(); cx.restore();
+    }
     if (p === sel) {
       cx.strokeStyle = onGround ? "#7d8aa8" : "#ffffff"; cx.lineWidth = 1 * dpr;
       if (onGround) cx.setLineDash([2 * dpr, 2 * dpr]);
@@ -2328,6 +2368,7 @@ function render() {
   /* where a crash or a bad exit happened: a cross on the spot and what went
      wrong, kept a few seconds; one that left the scope is marked at its edge */
   ui.incidents = ui.incidents.filter(m => m.left > 0);
+  const placed = [];
   for (const m of ui.incidents) {
     const x = gx(Math.max(0, Math.min(sec.W - 1, m.x))), y = gy(Math.max(0, Math.min(sec.H - 1, m.y))), r = pitch * .4;
     cx.save(); cx.globalAlpha = Math.min(1, m.left / 1000);
@@ -2338,7 +2379,10 @@ function render() {
     const tw = cx.measureText(m.label).width, padX = 6 * dpr, bh = Math.max(10 * dpr, pitch * .48) + 8 * dpr;
     const right = x + r * 1.6 + 6 * dpr + tw + 2 * padX < W;
     const bx = right ? x + r * 1.6 + 6 * dpr : x - r * 1.6 - 6 * dpr - tw - 2 * padX;
-    const by = Math.max(4 * dpr, Math.min(H - bh - 4 * dpr, y - bh / 2));
+    let by = Math.max(4 * dpr, Math.min(H - bh - 4 * dpr, y - bh / 2));
+    for (let k = 0; k < 8 && placed.some(q => bx < q.x + q.w && q.x < bx + tw + 2 * padX && by < q.y + q.h + 2 * dpr && q.y < by + bh + 2 * dpr); k++)
+      by = by + bh + 3 * dpr > H - bh ? by - bh - 3 * dpr : by + bh + 3 * dpr;
+    placed.push({ x: bx, y: by, w: tw + 2 * padX, h: bh });
     cx.fillStyle = "rgba(5,7,15,.92)"; cx.fillRect(bx, by, tw + 2 * padX, bh);
     cx.lineWidth = 1 * dpr; cx.strokeRect(bx + .5, by + .5, tw + 2 * padX - 1, bh - 1);
     cx.fillStyle = "#ff5266"; cx.textAlign = "left"; cx.fillText(m.label, bx + padX, by + bh / 2 + dpr);
@@ -2386,8 +2430,9 @@ function stripStatus(p) {
   if (p.mode === "pending") return ["posted", ""];
   if (S.t - p.conf < 2) return ["CONFLICT", "bad"];
   if (ui.warn.has(p.id)) return ["TRAFFIC", "warn"];
-  if (p.mode === "ground") return p.next ? ["CLEARED", "good"] : ["READY", "warn"];
+  if (p.mode === "ground") return p.next ? ["CLEARED", "good"] : ["↑ READY", "ready"];
   if (p.emergency) return [Math.ceil(p.fuel / TPM) + " MIN FUEL", "warn"];
+  if (prefs.aids === "learning" && offCourse(p)) return ["OFF COURSE", "warn"];
   if (p.mode === "final") return ["LANDING", "good"];
   if (p.next) { const c = p.next.c; return [c.op === "land" ? "CLEARED" : c.op === "hold" ? "TO HOLD" : "→ " + HDG[c.h] + " / " + c.alt, c.op === "land" ? "good" : ""]; }
   if (p.mode === "land") return ["CLEARED", "good"];
@@ -2415,7 +2460,8 @@ function renderStrips() {
     }).join("") || `<div class="sel-none">No flight plans posted yet. The first is on its way: <span class="kb">hold <kbd>${hint("fast", true)}</kbd></span><span class="tp">hold ▶▶</span> to run the clock fast.</div>`;
   });
   /* the scope, in words, for a reader that cannot see it */
-  const air = S.planes.filter(p => p.mode !== "pending");
+  const urgent = p => (S.t - p.conf < 2 ? 0 : ui.warn.has(p.id) ? 1 : p.emergency ? 2 : 3);
+  const air = S.planes.filter(p => p.mode !== "pending").sort((a, b) => urgent(a) - urgent(b));
   cv.setAttribute("aria-label", `Radar scope, ${SECTORS[S.sector].name}: ` + (air.length ? air.map(p => `${p.id} heading ${HDG[p.h]} at ${p.mode === "ground" ? "the runway" : p.alt + " thousand"}`).join("; ") : "no traffic"));
 }
 $("strip-list").addEventListener("click", e => { const s = e.target.closest(".strip"); if (s && !s.classList.contains("pending")) select(s.dataset.id); });
@@ -2431,6 +2477,17 @@ function select(id, toPanel) {
   ui.sel = id; ui.h = p.th !== null ? p.th : p.h; ui.alt = p.talt !== null ? p.talt : (p.mode === "ground" ? 5 : p.alt);
   if (p.mode === "ground") { ui.h = p.h; ui.alt = 5; }
   play("select"); renderStrips(); renderPanel();
+  const strip = $("strip-list").querySelector(".strip.sel");
+  if (strip && strip.offsetParent) strip.scrollIntoView({ block: "nearest" });
+  const wrap = $("scope-wrap");
+  if (cv.offsetWidth > wrap.clientWidth + 2 && p.mode !== "ground") {
+    const at = cv.offsetLeft + gx(planePos(p).x) / dpr - wrap.clientWidth / 2;
+    wrap.scrollTo({ left: at, behavior: reduced() ? "auto" : "smooth" });
+  }
+  /* a phone too short for scope and panel together: the panel comes up */
+  if (window.innerWidth <= 860) { const pr = $("panel").getBoundingClientRect(); if (pr.bottom > window.innerHeight) $("panel").scrollIntoView({ block: "end", behavior: "auto" }); }
+  const kindName = { arr: "arrival", dep: "departure", tra: "overflight" }[p.kind];
+  $("sr-set").textContent = `${p.id}, ${callsign(p)}, ${kindName} ${p.from} to ${p.to}, ${p.mode === "ground" ? "on the runway" : p.alt + ",000"}, ${stripStatus(p)[0]}`;
   if (ui.coach === 1) coach(2);
   /* chosen from the keys on the board: the panel's Send takes the focus,
      and Tab walks the panel from there */
@@ -2438,7 +2495,8 @@ function select(id, toPanel) {
 }
 function renderPanel() {
   const el = $("panel"), p = ui.sel && find(S, ui.sel), sec = SECTORS[S.sector];
-  $("game").classList.toggle("has-sel", !!p);
+  $("game").classList.toggle("has-sel", !!p && !replay);
+  if (replay) { el.innerHTML = `<h3>Instant replay</h3><div class="sel-none">The shift's own commands, played back. <span class="kb"><kbd>Esc</kbd> goes back to the report.</span><span class="tp">MENU leaves the replay.</span></div>`; return; }
   if (!p) { el.innerHTML = `<h3>Command</h3><div class="sel-none"><span class="kb">Click a plane or its strip, or <kbd>Tab</kbd> down the board.<br>Heading and height go together; <kbd>${hint("send", true)}</kbd> sends.</span><span class="tp">Tap a plane or its strip.<br>Heading and height go together; Send sends them.</span></div>`; return; }
   const cmp = ["NW", "N", "NE", "W", "", "E", "SW", "S", "SE"], hdgOf = { NW: 7, N: 0, NE: 1, E: 2, SE: 3, S: 4, SW: 5, W: 6 };
   const onFinal = p.mode === "final";
@@ -2459,6 +2517,20 @@ function renderPanel() {
       </div>
     </div>`; });
 }
+/* a plane flying on, untouched, out of the scope or through a fix that is
+   not its own, within six miles: the Learning scope flags it */
+function offCourse(p) {
+  if (p.mode !== "fly" || p.nav || p.next || p.climbout) return false;
+  const sec = SECTORS[S.sector], h = p.th != null ? p.th : p.h;
+  let x = p.x, y = p.y;
+  for (let k = 1; k <= 6; k++) {
+    x += DIRS[h][0]; y += DIRS[h][1];
+    if (!inside(sec, x, y)) return true;
+    const f = sec.fixes.find(q => q.x === x && q.y === y);
+    if (f) return p.kind === "arr" || p.emergency || f.n !== p.to;
+  }
+  return false;
+}
 /* what the command being set up will do that may not be meant: an exit it
    heads for, a route or a hold or a clearance it gives up; and, with nothing
    set up, an emergency's way down */
@@ -2470,20 +2542,20 @@ function cmdTip(p) {
     let x = p.x, y = p.y;
     for (let k = 1; k <= 6; k++) {
       x += DIRS[ui.h][0]; y += DIRS[ui.h][1];
-      if (!inside(sec, x, y)) return "On " + HDG[ui.h] + ": off the scope in " + k + " mi, not at a fix";
+      if (!inside(sec, x, y)) return "Off the scope in " + k + " mi, not at a fix";
       const f = sec.fixes.find(q => q.x === x && q.y === y);
       if (f) {
-        if (p.kind === "arr" || p.emergency) return "On " + HDG[ui.h] + ": exits at " + f.n + " in " + k + " mi; it lands at " + p.to;
-        if (f.n !== p.to) return "On " + HDG[ui.h] + ": exits at " + f.n + " in " + k + " mi, not " + p.to;
-        if (ui.alt !== 4) return "Exits at " + f.n + " in " + k + " mi; it must be at 4,000";
+        if (p.kind === "arr" || p.emergency) return "Exits at " + f.n + " in " + k + " mi; it lands at " + p.to;
+        if (f.n !== p.to) return "Exits at " + f.n + " in " + k + " mi, not " + p.to;
+        if (ui.alt !== 4) return "Exits at " + f.n + " in " + k + " mi; must be at 4,000";
         break;
       }
     }
     if (p.mode === "land") return "Cancels its landing clearance";
     if (p.nav === "pattern") return "Takes it out of the hold";
-    if (p.nav) return "Leaves its route to the VOR; Hold returns it";
+    if (p.nav) return "Leaves its VOR route; Hold returns it";
   }
-  if (p.emergency && p.mode !== "land") return "Mayday: height 0 clears it to land at " + p.to;
+  if (p.emergency && p.mode !== "land") return "Mayday: height 0 lands it at " + p.to;
   return "";
 }
 $("panel").addEventListener("click", e => {
@@ -2616,6 +2688,7 @@ document.addEventListener("keydown", e => {
      the browser's there, and walk or press the buttons */
   const onButton = e.target.closest && e.target.closest("#hud, #panel, #scope-wrap button");
   if (onButton && (e.key === "Tab" || (e.key === "Enter" && e.target.tagName === "BUTTON"))) return;
+  if (e.key === "F6") { e.preventDefault(); region(e.shiftKey ? -1 : 1); return; }
   /* quick keys, the way an RTS does its groups: Ctrl (or Shift) and a digit
      on the top row puts the selected plane on that digit; the digit alone
      selects it. The numpad's digits stay controls. */
@@ -2630,6 +2703,7 @@ document.addEventListener("keydown", e => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (digit) { e.preventDefault(); if (S.hot[digit] && find(S, S.hot[digit])) select(S.hot[digit]); return; }
   const k = e.key.length === 1 ? e.key.toLowerCase() : e.key, a = KEYS[e.code];
+  if (k === "Backspace") { e.preventDefault(); toTitle(); return; }
   if (k === "m") { toggleMute(); return; }
   if (k === "h" || k === "?") { showHelp(); return; }
   if (k === "l") { toggleAids(); return; }
@@ -2661,6 +2735,21 @@ document.addEventListener("keydown", e => {
   $("sr-set").textContent = (ui.alt === 0 ? "land at " + SECTORS[S.sector].airports[landingAt(p)].code : "heading " + HDG[ui.h] + ", " + ui.alt + ",000") + (tip ? ". " + tip : "");
 });
 document.addEventListener("keyup", e => { if (KEYS[e.code] === "fast") { loop.fast = false; if (S && loop.running) e.preventDefault(); } });
+/* F6 and Shift-F6: the keyboard's way between the screen's parts, the
+   header's buttons, the board, the command panel, and a note over the scope */
+function region(dir) {
+  const parts = [
+    $("hud").querySelector("button"),
+    $("strip-list").querySelector(".strip.sel") || $("strip-list").querySelector('.strip[tabindex="0"]'),
+    $("panel").querySelector("button:not(:disabled)"),
+    !$("notice").hidden && $("notice").querySelector("button"),
+    !$("coach").hidden && $("coach").querySelector("button"),
+  ].filter(el => el && el.offsetParent);      /* a part a phone has put away is skipped */
+  if (!parts.length) return;
+  const zone = el => el && el.closest ? el.closest("#hud, #strip-list, #panel, #notice, #coach") : null, cur = zone(document.activeElement);
+  const i = cur ? parts.findIndex(el => zone(el) === cur) : -1;
+  parts[i < 0 ? (dir > 0 ? 0 : parts.length - 1) : (i + dir + parts.length) % parts.length].focus();
+}
 /* Tab: the next plane down the board that can take a command; Shift-Tab, up */
 function cycle(dir) {
   const list = S.planes.filter(p => p.mode !== "pending");
