@@ -29,11 +29,13 @@ The pilot takes about four seconds to take a command in, then acts at the next d
 
 ## Facilities and the career
 
-Five facilities, in order of difficulty: Atlanta, Dallas-Ft.Worth, Denver, Washington D.C., New York. Five shifts: Trainee, Graveyard, Afternoon, Morning, Prime Time. Your rank, GS-7 to GS-13, sets which shift each facility gives you, by the original's table. The header counts the shift's conflict seconds and delay minutes as they happen. No crashes, no bad exits and under 30 seconds of conflict: promoted. A crash, a bad exit, over a minute of conflict or 45 minutes of delay: fired. A trainee is never fired.
+Five facilities, in order of difficulty: Atlanta, Dallas-Ft.Worth, Denver, Washington D.C., New York. Five shifts: Trainee, Graveyard, Afternoon, Morning, Prime Time. Your rank, GS-7 to GS-13, sets which shift each facility gives you, by the original's table. The header counts the shift's errors, conflict seconds and delay minutes as they happen. No crashes, no bad exits and under 30 seconds of conflict: promoted. A crash, a bad exit, over a minute of conflict or 45 minutes of delay: fired. A trainee is never fired.
 
 Pay is $500 a rank plus $100 per flight completed, $200 per emergency landed, −$100 per minute of delay, as in the manual. **Puma** flights pay double, and a delayed Puma costs double.
 
-Every shift is deterministic from its seed and your command log, so **Instant replay** shows it back exactly.
+Every shift is deterministic from its seed and your command log, so **Instant replay** shows it back exactly. When a plane crashes or leaves badly, the scope marks the spot and says what went wrong, and the shift report lists each incident with a replay from a minute before.
+
+On a phone the whole sector fits the screen; **ZOOM** gives a readable mile and pans, with an arrow at the edge for each plane out of view.
 
 ## The voice
 
@@ -67,7 +69,7 @@ Space only ever runs the clock, whatever has the focus; a focused button is pres
 
 | Key | Action |
 |---|---|
-| Esc | cancel, deselect |
+| Esc | deselect; with nothing selected, put the tips away; in a replay, back to the report |
 | L | scope aids: Learning or Classic |
 | Tab, Shift+Tab | next plane down the board, or up |
 | Shift+1…9 | bookmark the selected plane on that digit, RTS-style (Ctrl works too, where the browser leaves it alone) |
