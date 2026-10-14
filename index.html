@@ -1751,7 +1751,7 @@ function showSettings() {
     html: () => `
       <h3>Scope</h3>
       <div class="row">${pill(prefs.aids === "classic", "Classic", "aids:classic")}${pill(prefs.aids === "learning", "Learning", "aids:learning")}</div>
-      <p class="gk-note">Classic is the 1985 scope: while you set a command up, a line runs from the plane along the new heading, and the buzzer is the first you hear of a conflict. Learning adds where each command takes hold, a ring on the dot where the pilot will turn with the heading from there, and warns in amber one dot before two planes lose separation. Its pilots call in trouble six miles ahead, heard at any speed: off course, an exit at the wrong height, weather, terrain, restricted airspace, and a traffic alert a dot before a conflict. <kbd>L</kbd> switches it on the scope.</p>
+      <p class="gk-note">Classic is the 1985 scope: while you set a command up, a line runs from the plane along the new heading, and the buzzer is the first you hear of a conflict. Learning adds the path a selected plane will fly, dot to dot, and where each command takes hold, a ring on the dot where the pilot will turn with the heading from there, and warns in amber one dot before two planes lose separation. Its pilots call in trouble six miles ahead, heard at any speed: off course, an exit at the wrong height, weather, terrain, restricted airspace, and a traffic alert a dot before a conflict. <kbd>L</kbd> switches it on the scope.</p>
       <h3>Voice</h3>
       <div class="row">${pill(prefs.voice, "On", "voice:1")}${pill(!prefs.voice, "Off", "voice:0")}</div>
       <p class="gk-note">Commands and readbacks are spoken, in the manner of the 1985 original: recorded words at four bits, spliced together. The text always shows.</p>
@@ -1884,7 +1884,7 @@ function showHelp(tab = 0) {
       <p class="gk-note">First time? Start a career at Level 1: the coach walks you through your first plane.</p>
       <p><b>You are the approach controller.</b> Every plane on the scope is yours until it lands at one of your airports or leaves through the fix on its flight plan. Two planes within <b>3 miles</b> of each other need <b>1,000 feet</b> between their heights, and on neighbouring dots, <b>2,000 feet</b>.</p>
       ${GLYPH_KEY}
-      <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile. A selected plane shows where it is going, dot to dot: straight on, the route an arrival flies itself to the VOR, or a turn you have given that it has not reached yet.</p>
+      <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile. On the Learning scope a selected plane shows where it is going, dot to dot: straight on, the route an arrival flies itself to the VOR, or a turn you have given that it has not reached yet.</p>
       <p><b>Arrivals</b> enter at 5,000 feet, fly to the airport's VOR by themselves and hold there. Stack them at different heights, then clear them to land one at a time. <b>Overflights</b> must leave through their exit fix at exactly <b>4,000 feet</b>. <b>Departures</b> wait on the flight-plan board until you give them a heading and height.</p>
       <p>At 10 minutes of fuel a pilot calls <b>minimum fuel</b>; below 8 it declares an <b>emergency</b>: land the plane at the nearest airport, which its strip names. A plane in a thunderstorm, over Denver's mountains below 4,000 feet, or over Washington's restricted zone, is lost.</p>
       <p>The shift ends on the hour. No crashes, no bad exits and under 30 seconds of conflict gets you promoted; a crash, a bad exit, over a minute of conflict or 45 minutes of delay ends your career. A GS-7 trainee is never fired. When something goes wrong the scope marks the spot and says what happened, and the shift report lists each one with a replay from a minute before.</p>
@@ -2466,9 +2466,10 @@ function render() {
   }
   /* the planes */
   const sel = ui.sel && find(S, ui.sel), small = pitch / dpr < 12;
-  /* where the selected plane is going, dot to dot: straight on, the route
-     it flies itself, or a turn it has been given and not yet reached */
-  if (sel && sel.mode !== "pending") {
+  /* the Learning scope: where the selected plane is going, dot to dot:
+     straight on, the route it flies itself, or a turn it has been given
+     and not yet reached */
+  if (prefs.aids === "learning" && sel && sel.mode !== "pending") {
     const k = [S.t, sel.id, sel.mode, sel.cmds, JSON.stringify(sel.next)].join();
     if (!ui.path || ui.path.k !== k) ui.path = { k, dots: flightPath(S, sel) };
     const dots = ui.path.dots, pos = planePos(sel);
