@@ -2389,10 +2389,11 @@ function render() {
   for (let y = 0; y < sec.H; y++) for (let x = 0; x < sec.W; x++) {
     const lane = sec._lanes.has(x + "," + y);
     if (sec.mountains && sec.mountains(x, y)) { cx.strokeStyle = "#5a6c8e"; cx.lineWidth = 1 * dpr; cx.beginPath(); cx.moveTo(gx(x) - pitch * .28, gy(y) + pitch * .2); cx.lineTo(gx(x), gy(y) - pitch * .22); cx.lineTo(gx(x) + pitch * .28, gy(y) + pitch * .2); cx.stroke(); continue; }
-    /* every fifth mile a brighter, larger dot, to count distance by */
-    if (x % 5 === 0 && y % 5 === 0) { cx.fillStyle = "#56709f"; cx.fillRect(gx(x) - 1.5 * dpr, gy(y) - 1.5 * dpr, 3 * dpr, 3 * dpr); continue; }
-    cx.fillStyle = lane ? "#4a6a9c" : "#3e5479";
-    cx.fillRect(gx(x) - dpr, gy(y) - dpr, 2 * dpr, 2 * dpr);
+    /* every fifth mile a larger dot, to count distance by; the lanes in
+       to the IAF stay the brightest dots, so they read as lines */
+    const big = x % 5 === 0 && y % 5 === 0, s = big || lane ? 1.5 * dpr : dpr;
+    cx.fillStyle = lane ? "#7a9ad6" : big ? "#56709f" : "#3e5479";
+    cx.fillRect(gx(x) - s, gy(y) - s, 2 * s, 2 * s);
   }
   /* the restricted zone */
   if (sec.restricted) {
