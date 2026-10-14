@@ -1866,7 +1866,7 @@ function showHelp(tab = 0) {
       ${GLYPH_KEY}
       <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile.</p>
       <p><b>Arrivals</b> enter at 5,000 feet, fly to the airport's VOR by themselves and hold there. Stack them at different heights, then clear them to land one at a time. <b>Overflights</b> must leave through their exit fix at exactly <b>4,000 feet</b>. <b>Departures</b> wait on the flight-plan board until you give them a heading and height.</p>
-      <p>At 10 minutes of fuel a pilot calls <b>minimum fuel</b>; below 8 it declares an <b>emergency</b>: land the plane at the nearest airport, which the Learning scope points to. A plane in a thunderstorm, over Denver's mountains below 4,000 feet, or over Washington's restricted zone, is lost.</p>
+      <p>At 10 minutes of fuel a pilot calls <b>minimum fuel</b>; below 8 it declares an <b>emergency</b>: land the plane at the nearest airport, which its strip names. A plane in a thunderstorm, over Denver's mountains below 4,000 feet, or over Washington's restricted zone, is lost.</p>
       <p>The shift ends on the hour. No crashes, no bad exits and under 30 seconds of conflict gets you promoted; a crash, a bad exit, over a minute of conflict or 45 minutes of delay ends your career. A GS-7 trainee is never fired. When something goes wrong the scope marks the spot and says what happened, and the shift report lists each one with a replay from a minute before.</p>
       <p class="gk-note">${CREDIT}</p>`],
     ["Commands", `
@@ -2448,13 +2448,6 @@ function render() {
     const k = (now - g.at) / 1200;
     cx.strokeStyle = g.bad ? `rgba(255,82,102,${1 - k})` : `rgba(74,222,106,${1 - k})`; cx.lineWidth = 2 * dpr;
     cx.beginPath(); cx.arc(gx(g.x), gy(g.y), pitch * (0.3 + k * 1.2), 0, Math.PI * 2); cx.stroke();
-  }
-  /* the Learning scope points each emergency at the airport it must land at */
-  if (prefs.aids === "learning") for (const p of S.planes) {
-    if (!p.emergency || p.mode === "final" || p.mode === "pending") continue;
-    const ap = sec.airports[p.toAp], pos = planePos(p);
-    cx.strokeStyle = "rgba(255,176,0,.45)"; cx.lineWidth = 1 * dpr; cx.setLineDash([2 * dpr, 5 * dpr]);
-    cx.beginPath(); cx.moveTo(gx(pos.x), gy(pos.y)); cx.lineTo(gx(ap.x), gy(ap.y)); cx.stroke(); cx.setLineDash([]);
   }
   /* the planes */
   const sel = ui.sel && find(S, ui.sel), small = pitch / dpr < 12;
