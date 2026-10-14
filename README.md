@@ -35,7 +35,7 @@ Pay is $500 a rank plus $100 per flight completed, $200 per emergency landed, âˆ
 
 Every shift is deterministic from its seed and your command log, so **Instant replay** shows it back exactly. When a plane crashes or leaves badly, the scope marks the spot and says what went wrong, and the shift report lists each incident with a replay from a minute before.
 
-On a phone the whole sector fits the screen; **ZOOM** gives a readable mile and pans, with an arrow at the edge for each plane out of view.
+On a phone the whole sector fits the screen; **ZOOM** gives a larger mile and pans to the plane you pick, with an arrow at the edge for each plane out of view. Starting a new shift asks first when one is in progress.
 
 ## The voice
 
@@ -76,6 +76,8 @@ Space only ever runs the clock, whatever has the focus; a focused button is pres
 | 1â€¦9 | select the plane on that digit |
 | P, Pause | pause |
 | M | sound |
+| Backspace | MENU: back to the title; the shift waits |
+| F6, Shift+F6 | move the focus between the header, the board and the command panel |
 | H | help |
 
 ## Tech
