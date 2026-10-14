@@ -248,6 +248,15 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
 .keymap .leads polyline { fill: none; stroke: var(--lit); }
 .keymap .leads circle { fill: var(--accent); }
 .keymap .leads text { fill: var(--ink); dominant-baseline: central; }
+/* a drawer in a help sheet: shut, it is one line in the h3's voice */
+.gk-sheet .drawer { border-top: 1px solid var(--line); padding-top: 10px; }
+.gk-sheet .drawer summary { cursor: pointer; list-style: none; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.gk-sheet .drawer summary::-webkit-details-marker { display: none; }
+.gk-sheet .drawer summary::before { content: "▸"; display: inline-block; width: 1.4em; transition: transform .15s; }
+.gk-sheet .drawer[open] summary::before { transform: rotate(90deg); }
+.gk-sheet .drawer summary:hover, .gk-sheet .drawer summary:focus-visible { color: var(--text); outline: none; }
+.gk-sheet .drawer summary:focus-visible { box-shadow: 0 0 0 1px var(--accent); }
+.gk-sheet .drawer[open] summary { margin-bottom: 4px; }
 
 /* ---- phones: the band goes back into the flow above the scope, and the
    scope keeps a readable mile (14px) and pans sideways when the screen is
@@ -1837,6 +1846,7 @@ function showHelp(tab = 0) {
       ${keymapLeft()}
       <h3>Numpad</h3>
       ${keymapNumpad()}
+      <details class="drawer"><summary>Arrows, and the keys that work everywhere</summary>
       <h3>Arrows</h3>
       <table>
       <tr><td>heading left, right</td><td><kbd>←</kbd> <kbd>→</kbd></td></tr>
@@ -1859,7 +1869,8 @@ function showHelp(tab = 0) {
       <tr><td><kbd>Backspace</kbd></td><td>MENU: back to the title; the shift waits</td></tr>
       <tr><td><kbd>F6</kbd> <kbd>Shift</kbd>+<kbd>F6</kbd></td><td>move the focus between the header, the board and the command panel</td></tr>
       <tr><td><kbd>H</kbd></td><td>this help</td></tr>
-      </table>`],
+      </table>
+      </details>`],
   ] });
 }
 function showAbout() {
