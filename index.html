@@ -1751,7 +1751,7 @@ function showSettings() {
     html: () => `
       <h3>Scope</h3>
       <div class="row">${pill(prefs.aids === "classic", "Classic", "aids:classic")}${pill(prefs.aids === "learning", "Learning", "aids:learning")}</div>
-      <p class="gk-note">Classic is the 1985 scope: while you set a command up, a line runs from the plane along the new heading, and the buzzer is the first you hear of a conflict. Learning adds the path a selected plane will fly, dot to dot, and where each command takes hold, a ring on the dot where the pilot will turn with the heading from there, and warns in amber one dot before two planes lose separation. Its pilots call in trouble six miles ahead, heard at any speed: off course, an exit at the wrong height, weather, terrain, restricted airspace, and a traffic alert a dot before a conflict. <kbd>L</kbd> switches it on the scope.</p>
+      <p class="gk-note">Classic is the 1985 scope: while you set a command up, a line runs from the plane along the new heading, and the buzzer is the first you hear of a conflict. Learning adds the path a selected plane will fly, dot to dot, a ring on the fix where a posted plane will appear with the seconds until it does, and where each command takes hold, a ring on the dot where the pilot will turn with the heading from there, and warns in amber one dot before two planes lose separation. Its pilots call in trouble six miles ahead, heard at any speed: off course, an exit at the wrong height, weather, terrain, restricted airspace, and a traffic alert a dot before a conflict. <kbd>L</kbd> switches it on the scope.</p>
       <h3>Voice</h3>
       <div class="row">${pill(prefs.voice, "On", "voice:1")}${pill(!prefs.voice, "Off", "voice:0")}</div>
       <p class="gk-note">Commands and readbacks are spoken, in the manner of the 1985 original: recorded words at four bits, spliced together. The text always shows.</p>
@@ -1884,7 +1884,7 @@ function showHelp(tab = 0) {
       <p class="gk-note">First time? Start a career at Level 1: the coach walks you through your first plane.</p>
       <p><b>You are the approach controller.</b> Every plane on the scope is yours until it lands at one of your airports or leaves through the fix on its flight plan. Two planes within <b>3 miles</b> of each other need <b>1,000 feet</b> between their heights, and on neighbouring dots, <b>2,000 feet</b>.</p>
       ${GLYPH_KEY}
-      <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile. On the Learning scope a selected plane shows where it is going, dot to dot: straight on, the route an arrival flies itself to the VOR, or a turn you have given that it has not reached yet.</p>
+      <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile. On the Learning scope a selected plane shows where it is going, dot to dot: straight on, the route an arrival flies itself to the VOR, or a turn you have given that it has not reached yet. A flight plan is posted a minute before its plane appears at its fix, at 5,000 feet and heading in; the Learning scope rings that fix with the seconds to go. A plane leaving through the same fix at 4,000 needs to be clear of it by then.</p>
       <p><b>Arrivals</b> enter at 5,000 feet, fly to the airport's VOR by themselves and hold there. Stack them at different heights, then clear them to land one at a time. <b>Overflights</b> must leave through their exit fix at exactly <b>4,000 feet</b>. <b>Departures</b> wait on the flight-plan board until you give them a heading and height.</p>
       <p>At 10 minutes of fuel a pilot calls <b>minimum fuel</b>; below 8 it declares an <b>emergency</b>: land the plane at the nearest airport, which its strip names. A plane in a thunderstorm, over Denver's mountains below 4,000 feet, or over Washington's restricted zone, is lost.</p>
       <p>The shift ends on the hour. No crashes, no bad exits and under 30 seconds of conflict gets you promoted; a crash, a bad exit, over a minute of conflict or 45 minutes of delay ends your career. A GS-7 trainee is never fired. When something goes wrong the scope marks the spot and says what happened, and the shift report lists each one with a replay from a minute before.</p>
@@ -2401,6 +2401,10 @@ function drawPlane(c, X, Y, h, alt, id, col, pitch, talt, pending) {
   c.fillText(id, X + pitch * .5, ay); c.textAlign = "center";
   return ay;
 }
+/* where a fix's name goes: inward of the fix, off the edge it sits on */
+function fixLabelAt(sec, f) {
+  return [f.x === 0 ? gx(f.x) + pitch * 1.4 : f.x === sec.W - 1 ? gx(f.x) - pitch * 1.4 : gx(f.x), f.y === 0 ? gy(f.y) + pitch * .9 : f.y === sec.H - 1 ? gy(f.y) - pitch * .9 : gy(f.y)];
+}
 function render() {
   if (!S) return;
   const sec = SECTORS[S.sector], W = cv.width, H = cv.height, now = performance.now(), still = reduced();
@@ -2431,8 +2435,20 @@ function render() {
     cx.fillStyle = "#47609c";
     cx.beginPath(); cx.moveTo(gx(f.x), gy(f.y) - pitch * .3); cx.lineTo(gx(f.x) + pitch * .3, gy(f.y)); cx.lineTo(gx(f.x), gy(f.y) + pitch * .3); cx.lineTo(gx(f.x) - pitch * .3, gy(f.y)); cx.fill();
     cx.fillStyle = "#7d8aa8";
-    const lx = f.x === 0 ? gx(f.x) + pitch * 1.4 : f.x === sec.W - 1 ? gx(f.x) - pitch * 1.4 : gx(f.x), ly = f.y === 0 ? gy(f.y) + pitch * .9 : f.y === sec.H - 1 ? gy(f.y) - pitch * .9 : gy(f.y);
+    const [lx, ly] = fixLabelAt(sec, f);
     cx.fillText(f.n, lx, ly);
+  }
+  /* the Learning scope marks the fix a posted plane will appear at: a ring,
+     and its letter with the seconds until it is on the scope */
+  if (prefs.aids === "learning") for (const f of sec.fixes) {
+    const due = S.planes.filter(p => p.mode === "pending" && p.kind !== "dep" && p.x === f.x && p.y === f.y).sort((a, b) => a.enter - b.enter);
+    if (!due.length) continue;
+    cx.strokeStyle = "rgba(255,255,255,.55)"; cx.lineWidth = 1 * dpr; cx.setLineDash([2 * dpr, 2 * dpr]);
+    cx.beginPath(); cx.arc(gx(f.x), gy(f.y), pitch * .65, 0, Math.PI * 2); cx.stroke(); cx.setLineDash([]);
+    const [lx, ly] = fixLabelAt(sec, f);
+    const secs = p => Math.max(0, Math.ceil((p.enter - nowT()) * 7.5));
+    cx.fillStyle = "rgba(255,255,255,.75)";
+    cx.fillText(due.map(p => p.id + " " + secs(p) + "s").join("  "), lx, ly + (f.y === sec.H - 1 ? -pitch * .75 : pitch * .75));
   }
   /* airports, VORs */
   for (const a of sec.airports) {
