@@ -42,8 +42,7 @@ say|say
 altitude|altitude
 contact|contact
 tower|tower
-good|good
-day|day
+goodday|good day
 # pilot
 roger|roger
 correction|correction
