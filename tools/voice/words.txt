@@ -1,6 +1,8 @@
 # key|text spoken   (lines starting with # are ignored)
 # text as ipa:<IPA> pins the pronunciation with an SSML phoneme, for words
 # the voice gets wrong; a respelling is simpler where one works (puma -> pooma)
+# key|text|rate speaks it at its own rate (-10..10; say.ps1's default is -1),
+# for a stock phrase said quick, the way it is said all day
 # digits
 0|zero
 1|one
@@ -41,8 +43,9 @@ takeoff|takeoff
 say|say
 altitude|altitude
 contact|contact
+contactcenter|contact center|1
 tower|tower
-goodday|good day
+goodday|good day|1
 # pilot
 roger|roger
 correction|correction
