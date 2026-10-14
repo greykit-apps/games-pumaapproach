@@ -62,3 +62,13 @@ sight|sight
 rolling|rolling
 with|with
 you|you
+# pilot warnings
+off|off
+course|course
+warning|warning
+weather|weather
+ahead|ahead
+terrain|terrain
+approaching|approaching
+restricted|restricted
+airspace|airspace
