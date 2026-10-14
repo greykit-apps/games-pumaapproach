@@ -958,6 +958,26 @@ function lanes(sec) {
   return out;
 }
 
+/* Where a plane is going: the dots it will fly if told nothing more, a
+ * command it has been given but not yet acted on included. Flown by the
+ * engine itself, on a copy of the shift with no other traffic, until it
+ * lands, leaves, has gone round its hold once, or max dots. */
+function flightPath(S, p, max = 40) {
+  const q = JSON.parse(JSON.stringify(p));
+  const T = { ...S, planes: [q], events: [], done: [], next: Infinity, stormAt: -1, storm: S.storm && { ...S.storm }, end: Infinity, over: false };
+  const out = [{ x: q.x, y: q.y }];
+  let held = -1;
+  for (let t = 0; t < max * 8 && out.length <= max && T.planes.includes(q); t++) {
+    tick(T);
+    const last = out[out.length - 1];
+    if (q.x === last.x && q.y === last.y) continue;
+    out.push({ x: q.x, y: q.y });
+    if (q.nav === "pattern" && held < 0) held = out.length;
+    if (held >= 0 && out.length - held >= 8) break;
+  }
+  return out;
+}
+
 /* ---- a shift ---- */
 function newShift({ sector, shift, rank = 1, seed = 1, practice = false }) {
   const sec = SECTORS[sector], sh = SHIFTS[shift];
@@ -1416,7 +1436,7 @@ function probe(S) {
   return out;
 }
 
-const Engine = { ACK, ACK_S, SECTORS, SHIFTS, DIRS, HDG, TPM, MAX_RANK, AIRLINES, CLASSES, LETTERS, VOR_D, IAF_D, STORM_SHAPE, gsOf, shiftFor, newShift, tick, command, tally, probe, callsign, shortCall, vorOf, iafOf, lanes, route, inStorm, find, altText, turnDelta, bearing };
+const Engine = { ACK, ACK_S, SECTORS, SHIFTS, DIRS, HDG, TPM, MAX_RANK, AIRLINES, CLASSES, LETTERS, VOR_D, IAF_D, STORM_SHAPE, gsOf, shiftFor, newShift, tick, command, tally, probe, callsign, shortCall, vorOf, iafOf, lanes, route, flightPath, inStorm, find, altText, turnDelta, bearing };
 /* @engine-end */
 
 /* ============================================================
@@ -1864,7 +1884,7 @@ function showHelp(tab = 0) {
       <p class="gk-note">First time? Start a career at Level 1: the coach walks you through your first plane.</p>
       <p><b>You are the approach controller.</b> Every plane on the scope is yours until it lands at one of your airports or leaves through the fix on its flight plan. Two planes within <b>3 miles</b> of each other need <b>1,000 feet</b> between their heights, and on neighbouring dots, <b>2,000 feet</b>.</p>
       ${GLYPH_KEY}
-      <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile.</p>
+      <p>Planes fly straight and level until told otherwise, and change heading and height only at the dots: 45 degrees and 1,000 feet a mile. A selected plane shows where it is going, dot to dot: straight on, the route an arrival flies itself to the VOR, or a turn you have given that it has not reached yet.</p>
       <p><b>Arrivals</b> enter at 5,000 feet, fly to the airport's VOR by themselves and hold there. Stack them at different heights, then clear them to land one at a time. <b>Overflights</b> must leave through their exit fix at exactly <b>4,000 feet</b>. <b>Departures</b> wait on the flight-plan board until you give them a heading and height.</p>
       <p>At 10 minutes of fuel a pilot calls <b>minimum fuel</b>; below 8 it declares an <b>emergency</b>: land the plane at the nearest airport, which its strip names. A plane in a thunderstorm, over Denver's mountains below 4,000 feet, or over Washington's restricted zone, is lost.</p>
       <p>The shift ends on the hour. No crashes, no bad exits and under 30 seconds of conflict gets you promoted; a crash, a bad exit, over a minute of conflict or 45 minutes of delay ends your career. A GS-7 trainee is never fired. When something goes wrong the scope marks the spot and says what happened, and the shift report lists each one with a replay from a minute before.</p>
@@ -1986,7 +2006,7 @@ const TICK_MS = 7500;
 let S = null;                       /* the engine's state */
 let replay = null;                  /* { log, i } while an instant replay runs */
 const loop = { running: false, paused: false, speed: 1, fast: false, acc: 0, last: 0 };
-const ui = { sel: null, h: 0, alt: 5, lamps: {}, flash: {}, lastTally: null, conflictAt: -1e9, gone: [], incidents: [], warn: new Set(), hazard: new Map(), traffic: new Map(), wasConflict: false, doomed: false, coach: 0, coachUntil: 0, banner: null, route: null };
+const ui = { sel: null, h: 0, alt: 5, lamps: {}, flash: {}, lastTally: null, conflictAt: -1e9, gone: [], incidents: [], warn: new Set(), hazard: new Map(), traffic: new Map(), wasConflict: false, doomed: false, coach: 0, coachUntil: 0, banner: null, path: null };
 const LAMPS = ["EXIT FIX", "EXIT ALT", "AIRPORT", "CONFLICT", "MID-AIR", "CRASH", "LANDING", "EMERGENCY", "STORM"];
 
 function startShift(state, asReplay) {
@@ -2389,13 +2409,8 @@ function render() {
   cx.textBaseline = "middle"; cx.textAlign = "center";
   /* the dots and the lanes */
   if (!sec._lanes) sec._lanes = lanes(sec);
-  /* a selected arrival still flying itself in lights its own route,
-     to whichever airport it is bound for */
-  const rp = ui.sel && find(S, ui.sel), rk = rp && rp.kind === "arr" && rp.nav === "iaf" && !rp.next && [S.sector, rp.id, rp.x, rp.y, rp.h].join();
-  if (!rk) ui.route = null;
-  else if (!ui.route || ui.route.k !== rk) ui.route = { k: rk, dots: route(sec, rp.x, rp.y, rp.h, sec.airports[rp.toAp], new Set()) };
   for (let y = 0; y < sec.H; y++) for (let x = 0; x < sec.W; x++) {
-    const lane = sec._lanes.has(x + "," + y) || !!ui.route && ui.route.dots.has(x + "," + y);
+    const lane = sec._lanes.has(x + "," + y);
     if (sec.mountains && sec.mountains(x, y)) { cx.strokeStyle = "#5a6c8e"; cx.lineWidth = 1 * dpr; cx.beginPath(); cx.moveTo(gx(x) - pitch * .28, gy(y) + pitch * .2); cx.lineTo(gx(x), gy(y) - pitch * .22); cx.lineTo(gx(x) + pitch * .28, gy(y) + pitch * .2); cx.stroke(); continue; }
     /* every fifth mile a larger dot, to count distance by; the lanes in
        to the IAF stay the brightest dots, so they read as lines */
@@ -2451,6 +2466,19 @@ function render() {
   }
   /* the planes */
   const sel = ui.sel && find(S, ui.sel), small = pitch / dpr < 12;
+  /* where the selected plane is going, dot to dot: straight on, the route
+     it flies itself, or a turn it has been given and not yet reached */
+  if (sel && sel.mode !== "pending") {
+    const k = [S.t, sel.id, sel.mode, sel.cmds, JSON.stringify(sel.next)].join();
+    if (!ui.path || ui.path.k !== k) ui.path = { k, dots: flightPath(S, sel) };
+    const dots = ui.path.dots, pos = planePos(sel);
+    if (dots.length > 1) {
+      cx.strokeStyle = "rgba(255,255,255,.45)"; cx.lineWidth = 1.5 * dpr; cx.lineJoin = "round";
+      cx.beginPath(); cx.moveTo(gx(pos.x), gy(pos.y));
+      for (const d of dots) cx.lineTo(gx(d.x), gy(d.y));
+      cx.stroke();
+    }
+  }
   for (const p of S.planes) {
     /* a departure on the ground shows only while selected: greyed at its
        airport, pointing the heading being set up, the climb outlined */
