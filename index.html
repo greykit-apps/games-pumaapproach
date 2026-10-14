@@ -934,24 +934,27 @@ function entryHeading(sec, f, tgt) {
   return h;
 }
 
-/* The traffic lanes drawn bright: the dots an arrival left alone flies from
- * each fix to each airport's IAF, flown with the arrival's own navigation,
- * so a lane is where a plane will go. Cosmetic. */
-function lanes(sec) {
-  const out = new Set();
-  for (const ap of sec.airports) {
-    const iaf = iafOf(ap), goal = { x: iaf.x, y: iaf.y, h: ap.rwy };
-    for (const f of sec.fixes) {
-      const p = { x: f.x, y: f.y, h: entryHeading(sec, f, iaf) };
-      for (let i = 0; i < 120 && inside(sec, p.x, p.y); i++) {
-        out.add(p.x + "," + p.y);
-        if (p.x === iaf.x && p.y === iaf.y && p.h === ap.rwy) break;
-        const nh = navHeading(sec, p, goal);
-        if (nh < 0) break;
-        p.h = nh; p.x += DIRS[nh][0]; p.y += DIRS[nh][1];
-      }
-    }
+/* the dots an arrival left alone flies from (x,y) on heading h to the IAF,
+ * with the arrival's own navigation, into out */
+function route(sec, x, y, h, ap, out) {
+  const iaf = iafOf(ap), goal = { x: iaf.x, y: iaf.y, h: ap.rwy }, p = { x, y, h };
+  for (let i = 0; i < 120 && inside(sec, p.x, p.y); i++) {
+    out.add(p.x + "," + p.y);
+    if (p.x === iaf.x && p.y === iaf.y && p.h === ap.rwy) break;
+    const nh = navHeading(sec, p, goal);
+    if (nh < 0) break;
+    p.h = nh; p.x += DIRS[nh][0]; p.y += DIRS[nh][1];
   }
+  return out;
+}
+
+/* The traffic lanes drawn bright: the routes arrivals fly from each fix to
+ * the main airport's IAF, so a lane is where a plane will go. A second
+ * airport's lanes would cover a quarter of the scope; the scope lights
+ * those one selected plane at a time. Cosmetic. */
+function lanes(sec) {
+  const out = new Set(), ap = sec.airports[0];
+  for (const f of sec.fixes) route(sec, f.x, f.y, entryHeading(sec, f, iafOf(ap)), ap, out);
   return out;
 }
 
@@ -1413,7 +1416,7 @@ function probe(S) {
   return out;
 }
 
-const Engine = { ACK, ACK_S, SECTORS, SHIFTS, DIRS, HDG, TPM, MAX_RANK, AIRLINES, CLASSES, LETTERS, VOR_D, IAF_D, STORM_SHAPE, gsOf, shiftFor, newShift, tick, command, tally, probe, callsign, shortCall, vorOf, iafOf, lanes, inStorm, find, altText, turnDelta, bearing };
+const Engine = { ACK, ACK_S, SECTORS, SHIFTS, DIRS, HDG, TPM, MAX_RANK, AIRLINES, CLASSES, LETTERS, VOR_D, IAF_D, STORM_SHAPE, gsOf, shiftFor, newShift, tick, command, tally, probe, callsign, shortCall, vorOf, iafOf, lanes, route, inStorm, find, altText, turnDelta, bearing };
 /* @engine-end */
 
 /* ============================================================
@@ -1983,7 +1986,7 @@ const TICK_MS = 7500;
 let S = null;                       /* the engine's state */
 let replay = null;                  /* { log, i } while an instant replay runs */
 const loop = { running: false, paused: false, speed: 1, fast: false, acc: 0, last: 0 };
-const ui = { sel: null, h: 0, alt: 5, lamps: {}, flash: {}, lastTally: null, conflictAt: -1e9, gone: [], incidents: [], warn: new Set(), hazard: new Map(), traffic: new Map(), wasConflict: false, doomed: false, coach: 0, coachUntil: 0, banner: null };
+const ui = { sel: null, h: 0, alt: 5, lamps: {}, flash: {}, lastTally: null, conflictAt: -1e9, gone: [], incidents: [], warn: new Set(), hazard: new Map(), traffic: new Map(), wasConflict: false, doomed: false, coach: 0, coachUntil: 0, banner: null, route: null };
 const LAMPS = ["EXIT FIX", "EXIT ALT", "AIRPORT", "CONFLICT", "MID-AIR", "CRASH", "LANDING", "EMERGENCY", "STORM"];
 
 function startShift(state, asReplay) {
@@ -2386,8 +2389,13 @@ function render() {
   cx.textBaseline = "middle"; cx.textAlign = "center";
   /* the dots and the lanes */
   if (!sec._lanes) sec._lanes = lanes(sec);
+  /* a selected arrival still flying itself in lights its own route,
+     to whichever airport it is bound for */
+  const rp = ui.sel && find(S, ui.sel), rk = rp && rp.kind === "arr" && rp.nav === "iaf" && !rp.next && [S.sector, rp.id, rp.x, rp.y, rp.h].join();
+  if (!rk) ui.route = null;
+  else if (!ui.route || ui.route.k !== rk) ui.route = { k: rk, dots: route(sec, rp.x, rp.y, rp.h, sec.airports[rp.toAp], new Set()) };
   for (let y = 0; y < sec.H; y++) for (let x = 0; x < sec.W; x++) {
-    const lane = sec._lanes.has(x + "," + y);
+    const lane = sec._lanes.has(x + "," + y) || !!ui.route && ui.route.dots.has(x + "," + y);
     if (sec.mountains && sec.mountains(x, y)) { cx.strokeStyle = "#5a6c8e"; cx.lineWidth = 1 * dpr; cx.beginPath(); cx.moveTo(gx(x) - pitch * .28, gy(y) + pitch * .2); cx.lineTo(gx(x), gy(y) - pitch * .22); cx.lineTo(gx(x) + pitch * .28, gy(y) + pitch * .2); cx.stroke(); continue; }
     /* every fifth mile a larger dot, to count distance by; the lanes in
        to the IAF stay the brightest dots, so they read as lines */
