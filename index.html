@@ -1840,23 +1840,13 @@ function showHelp(tab = 0) {
       ${[1, 2, 3, 4, 5, 6, 7].map(r => `<tr><td class="${career && career.rank === r ? "me" : ""}">${gsOf(r)}</td>${SECTORS.map((s, i) => { const sh = shiftFor(r, i); return "<td>" + (sh < 0 ? "—" : esc(SHIFTS[sh].name)) + "</td>"; }).join("")}</tr>`).join("")}</table>
       <p>A shift pays <b>$500 a rank</b> plus a bonus: <b>$100</b> per flight landed or handed off, <b>$200</b> per emergency landed, <b>−$100</b> per minute of delay. A plane is delayed once it has been with you longer than its trip should take.</p>`],
     ["Keys", `
-      <p>One hand on the mouse, the other on the keys, whichever hand that is. Three layouts do the same things: pick the one under your hand. The command panel's hints follow the one you used last.</p>
+      <p>One hand on the mouse, the other on the keys, whichever hand that is. Two layouts do the same things: pick the one under your hand. The command panel's hints follow the one you used last.</p>
       <p>Send at height 0 is the landing clearance. Fast time runs only while its key is held.</p>
       <h3>Left hand</h3>
       ${keymapLeft()}
       <h3>Numpad</h3>
       ${keymapNumpad()}
-      <details class="drawer"><summary>Arrows, and the keys that work everywhere</summary>
-      <h3>Arrows</h3>
-      <table>
-      <tr><td>heading left, right</td><td><kbd>←</kbd> <kbd>→</kbd></td></tr>
-      <tr><td>height up, down</td><td><kbd>↑</kbd> <kbd>↓</kbd></td></tr>
-      <tr><td>hold left, right</td><td><kbd>[</kbd> <kbd>]</kbd></td></tr>
-      <tr><td>say heading and height</td><td><kbd>/</kbd></td></tr>
-      <tr><td>send</td><td><kbd>Enter</kbd></td></tr>
-      <tr><td>fast time</td><td><kbd>Space</kbd> <kbd>.</kbd></td></tr>
-      </table>
-      <h3>Everywhere</h3>
+      <details class="drawer"><summary>Keys that work everywhere</summary>
       <table>
       <tr><td><kbd>Space</kbd></td><td>only ever runs the clock, whatever has the focus; a focused button is pressed with <kbd>Enter</kbd></td></tr>
       <tr><td><kbd>Esc</kbd></td><td>deselect; with nothing selected, put the tips away; in a replay, back to the report (MENU in the header leaves the shift; it waits)</td></tr>
