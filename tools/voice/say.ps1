@@ -16,8 +16,9 @@ $words = Join-Path $PSScriptRoot "words.txt"
 $n = 0
 foreach ($line in Get-Content -Encoding UTF8 $words) {
   if ($line -match '^\s*(#|$)') { continue }
-  $parts = $line.Split('|', 2)
+  $parts = $line.Split('|', 3)
   $key = $parts[0].Trim(); $text = $parts[1].Trim()
+  $s.Rate = if ($parts.Length -gt 2) { [int]$parts[2].Trim() } else { $Rate }
   $s.SetOutputToWaveFile((Join-Path $Out ($key + ".wav")), $fmt)
   if ($text.StartsWith("ipa:", [StringComparison]::Ordinal)) {   # ordinal: the stress mark trips a culture-aware compare
     $ipa = $text.Substring(4)

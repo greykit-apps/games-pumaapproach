@@ -81,7 +81,7 @@ def load_words(path):
     for line in open(path, encoding="utf-8"):
         line = line.strip()
         if not line or line.startswith("#"): continue
-        key, text = line.split("|", 1)
+        key, text = line.split("|", 2)[:2]
         out.append((key.strip(), text.strip()))
     return out
 

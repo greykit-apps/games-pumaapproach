@@ -25,7 +25,7 @@ The scope is a grid of dots a mile apart. Each plane is an arrowhead on one of e
 
 A command is heading and height together, sent with one click or `Enter`; height 0 is the landing clearance, as on the C64. Hold, takeoff and "say heading and altitude" are the rest of the vocabulary. The controller speaks every command and the pilot reads it back; a second command to the same plane replaces the first, with "correction" if the first was already on the air.
 
-The pilot takes about four seconds to take a command in, then acts at the next dot after that. `L` (or Settings → Scope) picks the aids: **Learning**, the default, which rings the dot where each command will take hold and turns two planes amber one dot before they lose separation; or **Classic**, the 1985 scope, where the heading being set up runs from the plane's bottom bar and the buzzer is the first you hear of a conflict.
+The pilot takes about four seconds to take a command in, then acts at the next dot after that. `L` (or Settings → Scope) picks the aids: **Learning**, the default, which rings the dot where each command will take hold and turns two planes amber one dot before they lose separation, and has pilots call in trouble six miles ahead (off course, an exit at the wrong height, weather, terrain, restricted airspace) and a traffic alert a dot before a conflict; or **Classic**, the 1985 scope, where the heading being set up runs from the plane's bottom bar and the buzzer is the first you hear of a conflict.
 
 ## Facilities and the career
 
