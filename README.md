@@ -50,7 +50,7 @@ powershell -ExecutionPolicy Bypass -File tools/voice/say.ps1 -Out /tmp/words
 python -I tools/voice/build.py --wav-dir /tmp/words --out index.html
 ```
 
-At play time the words are decoded into 8 kHz buffers and spliced with a short gap; the pilot's go through a band-pass and a little clipping, with a squelch click either side.
+At play time the words are decoded into 8 kHz buffers and spliced with a short gap, the controller clean, each pilot through a radio of their own: a pitch, a band and a clip drawn from the callsign, so a pilot sounds the same all shift, with a squelch click either side. The pace follows the frequency: quiet, the words play as recorded; as lines back up and the scope fills it steps up (`PACES`, to 1.24×), each word time-compressed with its pitch kept, until everyone talks at the clip of the quick stock phrases (`contact center`, `good day`).
 
 ## Keys
 

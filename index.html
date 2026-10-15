@@ -1083,8 +1083,10 @@ function altText(a) { return a === 0 ? "the field" : a + ",000"; }
 function find(S, id) { return S.planes.find(p => p.id === id) || null; }
 /* heard at any speed: a plane calling up on the frequency (true, a
    check-in), or a pilot with a problem ("urgent", ahead of the chatter) */
+/* who: "ctl", or the plane whose pilot is talking; the pilot's line carries
+   the callsign as `from`, so each pilot keeps one voice all shift */
 function radio(S, who, text, say, flag) {
-  const e = { type: "radio", who, text, say };
+  const e = who === "ctl" ? { type: "radio", who, text, say } : { type: "radio", who: "pilot", from: who.al + who.num, text, say };
   if (flag === true) e.checkin = true; else if (flag) e[flag] = true;
   S.events.push(e);
 }
@@ -1103,7 +1105,7 @@ function command(S, c) {
   if (c.op === "status") {
     if (p.mode === "pending") return false;
     radio(S, "ctl", callsign(p) + ", say heading and altitude", [...sayCall(p), "say", "heading", "and", "altitude"]);
-    radio(S, "pilot", "heading " + HDG[p.h] + ", " + altText(p.alt) + ", " + (p.emergency ? Math.ceil(p.fuel / TPM) + " minutes fuel, " : "") + callsign(p),
+    radio(S, p, "heading " + HDG[p.h] + ", " + altText(p.alt) + ", " + (p.emergency ? Math.ceil(p.fuel / TPM) + " minutes fuel, " : "") + callsign(p),
       ["heading", ...sayHdg(p.h), "altitude", ...sayAlt(p.alt), ...sayCall(p)]);
     S.log.push({ t: S.t, c });
     return true;
@@ -1119,20 +1121,20 @@ function sayCommand(S, p, c) {
   const sec = SECTORS[S.sector];
   if (c.op === "vector") {
     if (p.mode === "pending") return false;
-    if (p.mode === "final") { radio(S, "pilot", callsign(p) + ", unable, on final", [...sayCall(p), "unable"]); return false; }
+    if (p.mode === "final") { radio(S, p, callsign(p) + ", unable, on final", [...sayCall(p), "unable"]); return false; }
     if (p.mode === "ground") {
       const ap = sec.airports[p.apIdx];
       /* a plane on short final: the departure waits, under the LANDING! lamp,
        * the original's name for it */
       if (S.planes.some(q => q !== p && q.mode === "final" && q.landAp === p.apIdx)) {
         alarm(S, "LANDING", "LANDING! " + ap.code + " runway in use");
-        radio(S, "pilot", callsign(p) + ", holding short, traffic on final", [...sayCall(p), "unable"]);
+        radio(S, p, callsign(p) + ", holding short, traffic on final", [...sayCall(p), "unable"]);
         return false;
       }
       const alt = c.alt == null ? 5 : c.alt;
       radio(S, "ctl", callsign(p) + ", cleared for takeoff, fly heading " + HDG[c.h] + ", climb and maintain " + altText(alt),
         [...sayCall(p), "cleared", "for", "takeoff", "heading", ...sayHdg(c.h), "climb", "and", "maintain", ...sayAlt(alt)]);
-      radio(S, "pilot", "rolling, heading " + HDG[c.h] + ", " + callsign(p), ["rolling", "heading", ...sayHdg(c.h), ...sayCall(p)]);
+      radio(S, p, "rolling, heading " + HDG[c.h] + ", " + callsign(p), ["rolling", "heading", ...sayHdg(c.h), ...sayCall(p)]);
       return true;
     }
     const d = turnDelta(p.h, c.h), dir = c.dir || (d < 0 ? -1 : d > 0 ? 1 : 0);
@@ -1141,7 +1143,7 @@ function sayCommand(S, p, c) {
     radio(S, "ctl", callsign(p) + ", " + turn + " heading " + HDG[c.h] + ", " + vert + " " + altText(c.alt),
       [...sayCall(p), ...(dir < 0 ? ["turn", "left"] : dir > 0 ? ["turn", "right"] : []), "heading", ...sayHdg(c.h),
        ...(c.alt > p.alt ? ["climb", "and", "maintain"] : c.alt < p.alt ? ["descend", "and", "maintain"] : ["maintain"]), ...sayAlt(c.alt)]);
-    radio(S, "pilot", (dir < 0 ? "turning left " : dir > 0 ? "turning right " : "") + "heading " + HDG[c.h] + ", " +
+    radio(S, p, (dir < 0 ? "turning left " : dir > 0 ? "turning right " : "") + "heading " + HDG[c.h] + ", " +
       (c.alt > p.alt ? "climbing " : c.alt < p.alt ? "descending " : "maintaining ") + altText(c.alt) + ", " + callsign(p),
       ["roger", ...(dir < 0 ? ["turning", "left"] : dir > 0 ? ["turning", "right"] : []), "heading", ...sayHdg(c.h),
        ...(c.alt > p.alt ? ["climbing", "to"] : c.alt < p.alt ? ["descending", "to"] : []), ...sayAlt(c.alt), ...sayCall(p)]);
@@ -1153,7 +1155,7 @@ function sayCommand(S, p, c) {
     const lower = c.alt != null && c.alt !== p.alt;
     radio(S, "ctl", callsign(p) + ", hold " + side + " turns at the VOR" + (lower ? ", " + altText(c.alt) : ""),
       [...sayCall(p), "hold", side, "at", "the", "vor", ...(lower ? ["at", ...sayAlt(c.alt)] : [])]);
-    radio(S, "pilot", "roger, holding at the VOR" + (lower ? ", " + altText(c.alt) : "") + ", " + callsign(p),
+    radio(S, p, "roger, holding at the VOR" + (lower ? ", " + altText(c.alt) : "") + ", " + callsign(p),
       ["roger", "holding", "at", "the", "vor", ...(lower ? sayAlt(c.alt) : []), ...sayCall(p)]);
     return true;
   }
@@ -1162,7 +1164,7 @@ function sayCommand(S, p, c) {
     const ap = sec.airports[c.ap];
     if (!ap) return false;
     radio(S, "ctl", callsign(p) + ", cleared to land " + ap.name, [...sayCall(p), "cleared", "to", "land", "runway", ...sayHdg(ap.rwy)]);
-    radio(S, "pilot", "roger, cleared to land, " + callsign(p), ["roger", "cleared", "to", "land", ...sayCall(p)]);
+    radio(S, p, "roger, cleared to land, " + callsign(p), ["roger", "cleared", "to", "land", ...sayCall(p)]);
     return true;
   }
   return false;
@@ -1276,7 +1278,7 @@ function stepPlane(S, p) {
     if (p.x === ap.x && p.y === ap.y) {
       if (p.kind === "arr" && p.landAp === p.toAp) {
         finish(S, p, p.emergency ? "emland" : "landed");
-        radio(S, "pilot", callsign(p) + ", runway in sight, good-day", [...sayCall(p), "goodday"]);
+        radio(S, p, callsign(p) + ", runway in sight, good-day", [...sayCall(p), "goodday"]);
       } else finish(S, p, "badexit", "AIRPORT", callsign(p) + " landed at " + ap.code + ", bound for " + p.to, "WRONG AIRPORT · " + ap.code + ", not " + p.to);
       return;
     }
@@ -1291,7 +1293,7 @@ function stepPlane(S, p) {
     else {
       finish(S, p, "exited");
       radio(S, "ctl", callsign(p) + ", contact center, good-day", [...sayCall(p), "contactcenter", "goodday"]);
-      radio(S, "pilot", "center, " + callsign(p) + ", good-day", ["center", ...sayCall(p), "goodday"]);
+      radio(S, p, "center, " + callsign(p) + ", good-day", ["center", ...sayCall(p), "goodday"]);
     }
     return;
   }
@@ -1323,7 +1325,7 @@ function tick(S) {
     const by = S.planes.filter(p => (p.mode === "fly" || p.mode === "hold") && p.alt > 0).sort((a, b) => a.x - b.x)[0];
     if (by) {
       const side = S.storm.y + 0.5 < sec.H / 3 ? "northwest" : S.storm.y + 0.5 > sec.H * 2 / 3 ? "southwest" : "west";
-      radio(S, "pilot", callsign(by) + ", thunderstorm to the " + side + ", moving east", [...sayCall(by), "thunderstorm", "to", "the", side, "moving", "east"], "urgent");
+      radio(S, by, callsign(by) + ", thunderstorm to the " + side + ", moving east", [...sayCall(by), "thunderstorm", "to", "the", side, "moving", "east"], "urgent");
     }
   }
   if (S.storm && ++S.storm.phase >= 4) { S.storm.phase = 0; S.storm.x++; if (S.storm.x > sec.W + 1) S.storm = null; }
@@ -1331,8 +1333,8 @@ function tick(S) {
   for (const p of [...S.planes]) {
     if (p.mode === "pending") {
       if (S.t >= p.enter) {
-        if (p.kind === "dep") { p.mode = "ground"; radio(S, "pilot", callsign(p) + ", ready for departure, " + p.from + " to " + p.to, [...sayCall(p), "ready", "for", "departure"], true); }
-        else { p.mode = "fly"; p.phase = 0; radio(S, "pilot", callsign(p) + " with you, " + altText(p.alt) + ", for " + p.to, [...sayCall(p), "with", "you", "altitude", ...sayAlt(p.alt)], true); }
+        if (p.kind === "dep") { p.mode = "ground"; radio(S, p, callsign(p) + ", ready for departure, " + p.from + " to " + p.to, [...sayCall(p), "ready", "for", "departure"], true); }
+        else { p.mode = "fly"; p.phase = 0; radio(S, p, callsign(p) + " with you, " + altText(p.alt) + ", for " + p.to, [...sayCall(p), "with", "you", "altitude", ...sayAlt(p.alt)], true); }
       }
       continue;
     }
@@ -1345,14 +1347,14 @@ function tick(S) {
     p.fuel--;
     if (!p.emergency && !p.minFuel && p.fuel < 10 * TPM) {
       p.minFuel = true;
-      radio(S, "pilot", callsign(p) + ", minimum fuel, " + Math.ceil(p.fuel / TPM) + " minutes", [...sayCall(p), "minimum", "fuel"], "urgent");
+      radio(S, p, callsign(p) + ", minimum fuel, " + Math.ceil(p.fuel / TPM) + " minutes", [...sayCall(p), "minimum", "fuel"], "urgent");
     }
     if (!p.emergency && p.fuel < 8 * TPM) {
       p.emergency = true;
       const toAp = p.toAp != null ? p.toAp : nearestAp(sec, p);
       p.toAp = toAp; p.kind = "arr"; p.to = sec.airports[toAp].code;
       alarm(S, "EMERGENCY", callsign(p) + ": " + Math.ceil(p.fuel / TPM) + " minutes fuel, land at " + p.to);
-      radio(S, "pilot", "mayday, " + callsign(p) + ", " + Math.ceil(p.fuel / TPM) + " minutes fuel", ["mayday", ...sayCall(p), ...sayNum(Math.ceil(p.fuel / TPM)), "minutes", "fuel"], "urgent");
+      radio(S, p, "mayday, " + callsign(p) + ", " + Math.ceil(p.fuel / TPM) + " minutes fuel", ["mayday", ...sayCall(p), ...sayNum(Math.ceil(p.fuel / TPM)), "minutes", "fuel"], "urgent");
     }
     if (p.fuel <= 0) { finish(S, p, "crash", "CRASH", callsign(p) + " ran out of fuel", "CRASH · out of fuel"); continue; }
     if (S.t - p.enter > p.budget) { p.delay++; S.delayTicks++; if (p.al === "PU") S.delayPuma++; }
@@ -1361,7 +1363,7 @@ function tick(S) {
       if (p.heldAt == null) p.heldAt = S.t;
       else if ((S.t - p.heldAt) % (3 * TPM) === 0) {
         const want = p.kind === "arr" ? ["approach", ["approach"]] : ["on course", ["on", "course"]];
-        radio(S, "pilot", callsign(p) + ", request " + want[0] + ", " + (S.t - p.heldAt) / TPM + " minutes in the hold", [...sayCall(p), "request", ...want[1]]);
+        radio(S, p, callsign(p) + ", request " + want[0] + ", " + (S.t - p.heldAt) / TPM + " minutes in the hold", [...sayCall(p), "request", ...want[1]]);
       }
     } else if (p.heldAt != null) delete p.heldAt;
     if (++p.phase >= p.period) { p.phase = 0; stepPlane(S, p); }
@@ -1528,47 +1530,119 @@ $("mute-btn").addEventListener("click", toggleMute);
    into 8 kHz buffers, and a phrase is its words played back to back with a
    short gap, the controller clean, the pilot through a radio.
    ============================================================ */
+/* The pace follows the frequency. Quiet, the words play as recorded; as
+   lines back up and the scope fills, the controller and the pilots talk
+   faster, a step at a time, up to the pace of the stock phrases words.txt
+   records quick (its key|text|rate lines). A faster step time-compresses
+   each word, keeping its pitch; the quick phrases are compressed only past
+   the pace they were recorded at. */
+const PACES = [1, 1.08, 1.16, 1.24];
+const QUICK = new Set(["contactcenter", "goodday"]), QUICK_PACE = 1.18;
+/* WSOLA: 30 ms Hann frames laid down every 15 ms, each read from tempo times
+   further along the input, nudged up to 5 ms to line up with the waveform
+   already laid down so the voice's pitch periods do not smear. */
+function stretch(x, tempo, sr) {
+  const N = Math.round(sr * 0.03), hs = N >> 1, ha = hs * tempo, tol = Math.round(sr * 0.005);
+  const out = new Float32Array(Math.ceil(x.length / tempo) + N), wsum = new Float32Array(out.length);
+  const win = new Float32Array(N);
+  for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+  let prev = 0;
+  for (let k = 0; ; k++) {
+    const nom = Math.round(k * ha), o = k * hs;
+    if (nom >= x.length || o >= out.length) break;
+    let at = nom;
+    if (k > 0) {
+      let best = -Infinity;
+      const nat = prev + hs;                       /* where the last frame would have run on to */
+      for (let d = -tol; d <= tol; d++) {
+        const p = nom + d; if (p < 0 || p + hs > x.length || nat + hs > x.length) continue;
+        let c = 0; for (let i = 0; i < hs; i++) c += x[p + i] * x[nat + i];
+        if (c > best) { best = c; at = p; }
+      }
+    }
+    for (let i = 0; i < N && at + i < x.length && o + i < out.length; i++) { out[o + i] += x[at + i] * win[i]; wsum[o + i] += win[i]; }
+    prev = at;
+  }
+  let n = out.length; while (n > 0 && wsum[n - 1] < 1e-3) n--;
+  for (let i = 0; i < n; i++) out[i] = wsum[i] > 0.1 ? out[i] / wsum[i] : out[i];
+  return out.subarray(0, n);
+}
+/* Each pilot keeps one voice all shift, drawn from the callsign: how high
+   (which also sets how quick), and the radio it comes through: where its
+   band sits, how narrow, and how hard it clips. */
+function pilotVoice(from) {
+  let h = 2166136261;
+  for (const c of String(from)) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  const r = () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
+  const drive = 1.6 + r() * 2.2;
+  return { rate: 0.84 + r() * 0.22, f: 1100 + r() * 900, q: 0.5 + r() * 0.9, drive, gain: 0.85 - (drive - 1.6) * 0.06 };
+}
 const Voice = {
-  bufs: null, q: [], busy: false, chain: null,
+  raw: null, bufs: [], q: [], busy: false, ctl: null, radios: new Map(), pace: 0,
   ready() {
-    if (this.bufs || typeof VOICE === "undefined" || !VOICE || !audio()) return !!this.bufs;
+    if (this.raw || typeof VOICE === "undefined" || !VOICE || !audio()) return !!this.raw;
     const raw = atob(VOICE.data), mid = ((1 << VOICE.bits) - 1) / 2;
     const all = new Float32Array(raw.length * 2);
     for (let i = 0; i < raw.length; i++) { const b = raw.charCodeAt(i); all[2 * i] = ((b & 15) - mid) / mid; all[2 * i + 1] = ((b >> 4) - mid) / mid; }
-    this.bufs = {};
-    for (const w in VOICE.idx) {
-      const [at, n] = VOICE.idx[w], buf = AC.createBuffer(1, n, VOICE.rate);
-      buf.getChannelData(0).set(all.subarray(at, at + n));
-      this.bufs[w] = buf;
-    }
-    /* the two channels: the controller's own mic, and the pilot's radio */
+    this.raw = {};
+    for (const w in VOICE.idx) { const [at, n] = VOICE.idx[w]; this.raw[w] = all.subarray(at, at + n); }
+    this.bufs = PACES.map(() => ({}));
+    /* the controller's own mic; each pilot's radio is made when first heard */
     const ctl = AC.createGain(); ctl.gain.value = 0.9;
     const lp = AC.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 3300;
     ctl.connect(lp).connect(OUT);
-    const pil = AC.createGain(); pil.gain.value = 0.75;
-    const bp = AC.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1500; bp.Q.value = 0.7;
-    const ws = AC.createWaveShaper(); const curve = new Float32Array(256);
-    for (let i = 0; i < 256; i++) { const x = i / 128 - 1; curve[i] = Math.tanh(x * 2.4) / Math.tanh(2.4); }
-    ws.curve = curve;
-    pil.connect(bp).connect(ws).connect(OUT);
-    this.chain = { ctl, pilot: pil };
+    this.ctl = ctl;
     return true;
+  },
+  /* a word at a pace step, compressed the first time it is wanted there */
+  word(w, step) {
+    const have = this.bufs[step][w]; if (have || !this.raw[w]) return have;
+    const k = QUICK.has(w) ? PACES[step] / QUICK_PACE : PACES[step];
+    const y = k > 1.001 ? stretch(this.raw[w], k, VOICE.rate) : this.raw[w];
+    const buf = AC.createBuffer(1, y.length, VOICE.rate);
+    buf.getChannelData(0).set(y);
+    return (this.bufs[step][w] = buf);
+  },
+  radio(from) {
+    let r = this.radios.get(from);
+    if (r) return r;
+    const v = pilotVoice(from);
+    const g = AC.createGain(); g.gain.value = v.gain;
+    const bp = AC.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = v.f; bp.Q.value = v.q;
+    const ws = AC.createWaveShaper(); const curve = new Float32Array(256);
+    for (let i = 0; i < 256; i++) { const x = i / 128 - 1; curve[i] = Math.tanh(x * v.drive) / Math.tanh(v.drive); }
+    ws.curve = curve;
+    g.connect(bp).connect(ws).connect(OUT);
+    r = { in: g, rate: v.rate };
+    this.radios.set(from, r);
+    return r;
+  },
+  /* how busy the frequency is: the lines waiting behind this one, less its
+     own readback, and half a step for each plane past four on the scope.
+     The pace moves one step a line toward it, so it builds and eases off. */
+  step(it) {
+    const waiting = this.q.filter(i => it.id == null || i.id !== it.id).length;
+    const planes = S ? S.planes.filter(p => p.mode !== "pending").length : 0;
+    const want = Math.min(PACES.length - 1, Math.round(waiting + Math.max(0, planes - 4) / 2));
+    this.pace += Math.sign(want - this.pace);
+    return this.pace;
   },
   /* plays the words now, remembering the sources so a correction can cut
      them off; returns how long they take */
-  speak(words, who) {
+  speak(words, who, from, step) {
     if (!this.ready()) return 0;
     let t = AC.currentTime + 0.03;
-    const rate = who === "pilot" ? 0.93 : 1.0, gap = 0.045;
-    if (who === "pilot") { try { SFX.squelch(t); } catch (e) { /* no audio device */ } t += 0.08; }
+    const r = who === "pilot" ? this.radio(from || "") : null;
+    const rate = r ? r.rate : 1.0, out = r ? r.in : this.ctl, gap = 0.045 / PACES[step];
+    if (r) { try { SFX.squelch(t); } catch (e) { /* no audio device */ } t += 0.08; }
     for (const w of words) {
-      const b = this.bufs[w]; if (!b) continue;
+      const b = this.word(w, step); if (!b) continue;
       const s = AC.createBufferSource(); s.buffer = b; s.playbackRate.value = rate;
-      s.connect(this.chain[who]); s.start(t);
+      s.connect(out); s.start(t);
       this.sources.push(s);
       t += b.duration / rate + gap;
     }
-    if (who === "pilot") { try { SFX.squelch(t); } catch (e) { /* no audio device */ } t += 0.06; }
+    if (r) { try { SFX.squelch(t); } catch (e) { /* no audio device */ } t += 0.06; }
     return t - AC.currentTime;
   },
   /* The frequency. Every line is in the log the moment it happens; this is
@@ -1623,12 +1697,12 @@ const Voice = {
     if (it.kind === "rb") this.said.delete(it.id);
     showRadio(it);
     /* above 1x, or with a backlog, only a plane checking in or warning is heard */
-    const spoken = prefs.voice && !muted && (it.checkin || it.urgent || (loop.speed <= 1 && this.q.length < 4)) ? this.speak(it.say, it.who) : 0;
+    const spoken = prefs.voice && !muted && (it.checkin || it.urgent || (loop.speed <= 1 && this.q.length < 4)) ? this.speak(it.say, it.who, it.from, this.step(it)) : 0;
     const ms = spoken ? spoken * 1000 + 250 : Math.min(1800, 180 + it.say.length * 110);
     this.busy = true;
     this.timer = setTimeout(() => { this.cur = null; this.busy = false; this.pump(); }, ms);
   },
-  clear() { this.cut(); this.q = []; this.said.clear(); },
+  clear() { this.cut(); this.q = []; this.said.clear(); this.pace = 0; },
 };
 
 /* ============================================================
@@ -2144,7 +2218,7 @@ const WARN = {
 };
 function pilotWarn(p, hz) {
   const [text, say] = WARN[hz.kind](hz);
-  const e = { type: "radio", who: "pilot", text: callsign(p) + ", " + text, say: [...sayCall(p), ...say], urgent: true };
+  const e = { type: "radio", who: "pilot", from: p.al + p.num, text: callsign(p) + ", " + text, say: [...sayCall(p), ...say], urgent: true };
   logRadio(e); Voice.say(e);
 }
 function light(lamp, amber, hold) { ui.lamps[lamp] = { until: performance.now() + (hold ? 400 : 5000), amber }; }
