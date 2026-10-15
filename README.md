@@ -1,4 +1,4 @@
-# PumaApproach
+# Puma Approach
 
 **Air traffic control on a 1985 radar scope.** A remake of *Kennedy Approach… and Beyond* (Andy Hollis, MicroProse, 1985, Commodore 64), with Puma Air on the frequency.
 
@@ -39,7 +39,7 @@ On a phone the whole sector fits the screen; **ZOOM** gives a larger mile and pa
 
 ## The voice
 
-The original spoke with Electronic Speech Systems' "Software Speech": a recorded human voice, cut into words, played back through the SID chip at four bits. PumaApproach does it the same way with its own words. `tools/voice/` holds the pipeline:
+The original spoke with Electronic Speech Systems' "Software Speech": a recorded human voice, cut into words, played back through the SID chip at four bits. Puma Approach does it the same way with its own words. `tools/voice/` holds the pipeline:
 
 1. `words.txt` — the vocabulary, one `key|text` a line.
 2. `say.ps1` — records each word with a Windows voice (Microsoft David, by default) to WAV.

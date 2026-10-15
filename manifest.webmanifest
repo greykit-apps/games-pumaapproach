@@ -1,6 +1,6 @@
 {
-  "name": "PumaApproach",
-  "short_name": "PumaApproach",
+  "name": "Puma Approach",
+  "short_name": "Puma Approach",
   "description": "Air traffic control on a 1985 radar scope. Vector United, Delta, American, Air France and Puma Air through five busy sectors, keep them three miles apart, and climb the GS ladder. A remake of Kennedy Approach.",
   "start_url": ".",
   "scope": "./",
