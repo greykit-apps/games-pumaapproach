@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>PumaApproach — Air Traffic Control</title>
+<title>Puma Approach — Air Traffic Control</title>
 <meta name="description" content="Air traffic control on a 1985 radar scope. Vector United, Delta, American, Air France and Puma Air through five busy sectors, keep them three miles apart, and climb the GS ladder. An inspired remake of Kennedy Approach.">
 <meta name="theme-color" content="#05070f">
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="no-referrer">
-<meta property="og:title" content="PumaApproach">
+<meta property="og:title" content="Puma Approach">
 <meta property="og:description" content="Air traffic control on a 1985 radar scope. Vector United, Delta, American, Air France and Puma Air through five busy sectors, keep them three miles apart, and climb the GS ladder. An inspired remake of Kennedy Approach.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://greykit.com/games/pumaapproach/og.png">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="Air traffic control on a 1985 radar scope. Vector United, Delta, American, Air France and Puma Air through five busy sectors, keep them three miles apart, and climb the GS ladder. An inspired remake of Kennedy Approach.">
 <meta property="og:url" content="https://greykit.com/games/pumaapproach/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PumaApproach">
+<meta name="twitter:title" content="Puma Approach">
 <meta name="twitter:description" content="Air traffic control on a 1985 radar scope. Vector United, Delta, American, Air France and Puma Air through five busy sectors, keep them three miles apart, and climb the GS ladder. An inspired remake of Kennedy Approach.">
 <meta name="twitter:image" content="https://greykit.com/games/pumaapproach/og.png">
 <meta name="twitter:image:alt" content="Air traffic control on a 1985 radar scope. Vector United, Delta, American, Air France and Puma Air through five busy sectors, keep them three miles apart, and climb the GS ladder. An inspired remake of Kennedy Approach.">
@@ -37,7 +37,7 @@
 /* @gk-tokens-end */
 :root {
   /* Tactical tribe: the canon block above is every Tactical game's palette.
-     PumaApproach's own names follow: the scope's phosphor and its dots. */
+     Puma Approach's own names follow: the scope's phosphor and its dots. */
   --scope: #06101c;
   --dot: #182438;
   --lane: #2a4064;
@@ -1709,7 +1709,7 @@ const Voice = {
    THE TITLE (greykit.games canon @gk-title, wired as PumaPanic wires it)
    ============================================================ */
 injectTitleCSS();
-const TITLE_NAME = "PumaApproach";
+const TITLE_NAME = "Puma Approach";
 let titleOpen = false;
 let sheet = null;                          /* the one sheet open, if any */
 
@@ -1837,7 +1837,7 @@ function showSettings() {
       <p class="gk-note">A shift runs in real time: ten or fifteen minutes on the clock. Holding <kbd>Space</kbd> runs it fast while you wait. Above 1× the voice keeps quiet, except for planes checking in.</p>
       <h3>This browser</h3>
       <div class="row"><button data-set="forget">Forget everything</button></div>
-      <p class="gk-note">Clears everything PumaApproach keeps in this browser: your career, the career log, a shift in progress, and these settings.</p>`,
+      <p class="gk-note">Clears everything Puma Approach keeps in this browser: your career, the career log, a shift in progress, and these settings.</p>`,
     onClick: (b, api) => {
       const v = b.dataset.set; if (!v) return;
       if (v === "forget") { confirmForget(); return; }
@@ -1849,7 +1849,7 @@ function showSettings() {
   });
 }
 async function confirmForget() {
-  if (await confirmSheet("Forget everything PumaApproach has saved in this browser, and end any shift in progress? This cannot be undone.", "Forget everything")) forgetEverything();
+  if (await confirmSheet("Forget everything Puma Approach has saved in this browser, and end any shift in progress? This cannot be undone.", "Forget everything")) forgetEverything();
 }
 /* Settings' "Forget everything" (games-meta STANDARD.md §2): every key the
    game owns, found by its prefix, and only those -- every game on greykit.com
@@ -2006,7 +2006,7 @@ function showHelp(tab = 0) {
 }
 function showAbout() {
   openSheet("About", { html: () => `
-    <p><b>PumaApproach</b> is an inspired remake of <i>Kennedy Approach</i> by Andy Hollis. It was such a favorite of mine in 1985, that in 2026 I still maintain an original-hardware C64 just to play it.</p>
+    <p><b>Puma Approach</b> is an inspired remake of <i>Kennedy Approach</i> by Andy Hollis. It was such a favorite of mine in 1985, that in 2026 I still maintain an original-hardware C64 just to play it.</p>
     <p>Now with the help of AI, I have recreated the core gameplay elements, including a simulation of what was, at the time, groundbreaking and frankly magical to hear computer speech. I've also added some "helpers" for modern players.</p>
     <p class="gk-note">${CREDIT}</p>` });
 }
@@ -3121,8 +3121,8 @@ function demoRender(ts) {
    INIT
    ============================================================ */
 function init() {
-  console.log("%cPumaApproach", "color:#54f2ff;font-size:20px;font-weight:bold;font-family:monospace;");
-  console.log("%cPumaApproach — greykit.com", "color:#dbe4fb;font-size:12px;font-family:monospace;");
+  console.log("%cPuma Approach", "color:#54f2ff;font-size:20px;font-weight:bold;font-family:monospace;");
+  console.log("%cPuma Approach — greykit.com", "color:#dbe4fb;font-size:12px;font-family:monospace;");
   console.log("%cThree miles or a thousand feet. Never less.", "color:#7d8aa8;font-size:11px;font-family:monospace;");
   $("scene").innerHTML = '<canvas id="scene-cv" aria-hidden="true"></canvas>' + sceneSVG();
   demoStart();
