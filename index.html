@@ -347,10 +347,12 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
 <div id="title" hidden></div>
 <script>
 /* @gk-title-begin v0.4 -- greykit.games canon (games-meta STANDARD.md §3),
- * byte-identical in every Tactical game. The copy of record is games-meta's
- * canon/gk-title.js: change it there, bump the version, copy it to all, and
- * tools/diff-standard.sh says where it differs. Plain script, no imports or
- * exports, so a single-file game can paste it into a classic <script>. */
+ * in every Tactical game. The copy of record is games-meta's
+ * canon/gk-title.js: change it there and bump the version, never in one game.
+ * The boot is the rule -- every game's matches canon's, and
+ * tools/diff-standard.sh says where one differs. The title is the default:
+ * a game keeps the version it took. Plain script, no imports or exports, so
+ * a single-file game can paste it into a classic <script>. */
 
 /* greykit.com's mark: the right half of the face, flat cut on the left
  * (greykitweb/assets/greykit-mark.png at 240px). */
