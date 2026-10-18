@@ -301,6 +301,19 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
 .tp { display: none; }
 @media (pointer: coarse) { .acts button { padding: 9px 8px; } .kb, kbd.hint, #title .gk-menu kbd { display: none; } .tp { display: inline; } }
 @media (prefers-reduced-motion: reduce) { .lamp.lit { animation: none; } }
+/* the title's entrance, the game's own: Puma slides in from the left, then
+   Approach from the right, both fast and settling; the shade, the line under
+   the name, the menu and the credit wait for both and fade in after.
+   pa-wait holds it all back under the boot; pa-enter runs it. */
+.gk-title.pa-wait h1 span{visibility:hidden}
+.gk-title.pa-wait>.gk-shade,.gk-title.pa-wait .gk-sub,.gk-title.pa-wait .gk-menu,.gk-title.pa-wait footer{opacity:0}
+.gk-title.pa-enter{overflow-x:clip}
+.gk-title.pa-enter h1 span{animation:pa-from-l .8s cubic-bezier(.16,1,.3,1) both}
+.gk-title.pa-enter h1 span+span{animation-name:pa-from-r;animation-delay:.3s}
+.gk-title.pa-enter>.gk-shade,.gk-title.pa-enter .gk-sub,.gk-title.pa-enter .gk-menu,.gk-title.pa-enter footer{animation:pa-fade .55s ease-out 1.1s both}
+@keyframes pa-from-l{from{transform:translateX(-100vw)}to{transform:none}}
+@keyframes pa-from-r{from{transform:translateX(100vw)}to{transform:none}}
+@keyframes pa-fade{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
@@ -1961,10 +1974,12 @@ function titleCfg() {
     ],
   };
 }
-function openTitle() {
+/* wait: the title is about to make its entrance (revealName), so it starts held back */
+function openTitle(wait = false) {
   titleOpen = true;
   const el = $("title");
   el.innerHTML = titleHTML(titleCfg());
+  if (wait) el.firstChild.classList.add("pa-wait");
   el.hidden = false;
   document.body.classList.add("on-title");
   $("game").hidden = true;
@@ -1977,7 +1992,16 @@ function closeTitle() {
   document.body.classList.remove("on-title");
   radioFade(0.4); musicStop();
 }
-function toTitle() { closeSheet(); if (S && loop.running && !replay && !S.over) save(KEY_SHIFT, S); loop.running = false; loop.fast = false; Voice.clear(); openTitle(); revealTitle(); musicStart(); }
+function toTitle() { closeSheet(); if (S && loop.running && !replay && !S.over) save(KEY_SHIFT, S); loop.running = false; loop.fast = false; Voice.clear(); openTitle(true); revealName(); musicStart(); }
+/* the entrance, in place of the canon's decode and rise: the name slides in
+   and the rest fades in after it (the pa-enter CSS); the default is focused */
+function revealName(t = document.querySelector(".gk-title")) {
+  if (!t) return;
+  t.classList.remove("pa-wait");
+  if (!reduced()) t.classList.add("pa-enter");
+  const b = t.querySelector(".gk-primary") || t.querySelector(".gk-menu button");
+  if (b) b.focus({ preventScroll: true });
+}
 function refreshTitle() { if (!titleOpen) return; openTitle(); const b = document.querySelector("#title .gk-primary"); if (b) b.focus({ preventScroll: true }); }
 function titleAct(a) {
   if (a === "resume") { const s = shiftSaved(); if (s) startShift(s); return; }
@@ -3359,12 +3383,12 @@ function init() {
   demoStart();
   const bootSoundOff = bootSound();
   const boot = runBoot({ lines: [bootReloadLine(), "one file: nothing to fetch"] });
-  openTitle();
+  openTitle(true);
   musicStart();
   bootRadio();
   const saved = shiftSaved();
   boot.finish([saved ? `shift in progress: ${SECTORS[saved.sector].name}, ${SHIFTS[saved.shift].name}` :
-    career ? `career on file: ${gsOf(career.rank)} · ${money(career.total)} earned` : "radar warm · 5 facilities on file"]).then(() => { bootSoundOff(); revealTitle(); musicStart(); });
+    career ? `career on file: ${gsOf(career.rank)} · ${money(career.total)} earned` : "radar warm · 5 facilities on file"]).then(() => { bootSoundOff(); revealName(); musicStart(); });
   requestAnimationFrame(frame);
 }
 init();
