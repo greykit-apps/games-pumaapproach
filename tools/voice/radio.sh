@@ -11,5 +11,5 @@ rate=${2:-200}
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 say -v "$voice" -r "$rate" --file-format=WAVE --data-format=LEI16@22050 -o "$tmp/radio.wav" \
-  "Kansas City Center, Pooma Airlines thirty-one three-thirty-seven, with you at flight level three five zero, with echo."
+  "Kansas City Center, Pooma Airlines thirty-one three-thirty-seven, with you."
 python3 "$here/build.py" --radio "$tmp/radio.wav" --out "$here/../../index.html" ${PREVIEW:+--preview "$PREVIEW"}
