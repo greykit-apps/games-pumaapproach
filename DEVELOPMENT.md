@@ -31,7 +31,7 @@ As the boot plays, a pilot checks in with Kansas City Center: one phrase, record
 sh tools/voice/radio.sh [voice] [rate]
 ```
 
-`PREVIEW=<dir>` writes the processed phrase out as `radio.wav` too. A key or click that skips the boot fades it out; left alone it runs on over the title. The title's music is a step sequencer after PumaCity: Watchers' title (`MUSIC` in `index.html`): starting with the boot, 0.4 s ahead of the pilot: bass alone for four bars, then pad, hats, a radar ping and a kick, ducked under the pilot while the pilot is still talking. Sound off silences both, and Voice off silences the pilot. A browser that will not play before a key or click is never heard to say the transmission (that key skips the boot); the music waits for the first key or click, which skips the boot.
+`PREVIEW=<dir>` writes the processed phrase out as `radio.wav` too. A key or click that skips the boot fades it out; left alone it runs on over the title. The title's music is a step sequencer (`MUSIC` in `index.html`), starting with the boot, 0.4 s ahead of the pilot: a downtempo beat at 88 bpm, swung, under a driving bass line, and nothing else; no melody and nothing random, so it sits behind the scope. Two bars of bass and hats, then the kick and snare, eight bars round. It is ducked under the pilot while the pilot is still talking. Sound off silences both, and Voice off silences the pilot. A browser that will not play before a key or click is never heard to say the transmission (that key skips the boot); the music waits for the first key or click, which skips the boot.
 
 ## Icons and the share card
 
