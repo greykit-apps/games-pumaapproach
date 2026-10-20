@@ -23,15 +23,17 @@ python -I tools/voice/build.py --wav-dir /tmp/words --out index.html
 
 At play time the words are decoded into 8 kHz buffers and spliced with a short gap, the controller clean, each pilot through a radio of their own: a pitch, a band and a clip drawn from the callsign, so a pilot sounds the same all shift, with a squelch click either side. The pace follows the frequency: quiet, the words play as recorded; as lines back up and the scope fills it steps up (`PACES`, to 1.24×), each word time-compressed with its pitch kept, until everyone talks at the clip of the quick stock phrases (`contact center`, `good day`).
 
-## The boot's transmission and the title's music
+## The intro: the boot, the title's music and the pilot
 
-As the boot plays, a pilot checks in with Kansas City Center: one phrase, recorded whole rather than spliced, through the same ESS chain into the `@radio` block. It is the one recording made on a Mac (`say`, Samantha by default), since it is a voice from off the scope rather than the game's own:
+The game takes games-meta's integrated intro (STANDARD.md §14): the `@gk-intro` block in `index.html` is `canon/gk-intro.js` v0.2, copied whole. In place of canon's meow, the boot's sound is the game's own: the music starts with the boot and, 0.4 s in, a pilot checks in with Kansas City Center over it, the music ducked under the call. The intro plays a boot sound only when the browser already lets the page play, as it does coming from the arcade's click, so that is when the pilot is heard; a key or click that skips the boot fades the call out. Loaded cold, the boot holds at its end on *Click or press a key to continue*, the pilot is dropped, and that press starts the music. `?hold=always` shows the hold even where the browser would not need it. The name's lines arrive as the game's own slide (Puma from the left, Approach from the right), then the menu, the Sound and Music switches top right, and the credit under the menu. Back from a shift the title shows at once.
+
+The pilot is one phrase, recorded whole rather than spliced, through the same ESS chain into the `@radio` block. It is the one recording made on a Mac (`say`, Samantha by default), since it is a voice from off the scope rather than the game's own:
 
 ```
 sh tools/voice/radio.sh [voice] [rate]
 ```
 
-`PREVIEW=<dir>` writes the processed phrase out as `radio.wav` too. A key or click that skips the boot fades it out; left alone it runs on over the title. The title's music is a step sequencer (`MUSIC` in `index.html`), starting with the boot, 0.4 s ahead of the pilot: a downtempo beat at 88 bpm, swung, under a driving bass line, and nothing else; no melody and nothing random, so it sits behind the scope. Two bars of bass and hats, then the kick and snare, eight bars round. It is ducked under the pilot while the pilot is still talking. Sound off silences both, and Voice off silences the pilot. A browser that will not play before a key or click is never heard to say the transmission (that key skips the boot); the music waits for the first key or click, which skips the boot.
+`PREVIEW=<dir>` writes the processed phrase out as `radio.wav` too. The title's music is a step sequencer (`MUSIC` in `index.html`): a downtempo beat at 88 bpm, swung, under a driving bass line, and nothing else; no melody and nothing random, so it sits behind the scope. Two bars of bass and hats, then the kick and snare, eight bars round. Sound off silences everything; Music off (`pumaapproach_music_v1`) the music alone; Voice off the pilot.
 
 ## Icons and the share card
 
