@@ -88,7 +88,7 @@ a { color: var(--steel); }
 #scope-wrap { flex: 1; min-height: 0; position: relative; display: grid; place-items: center; padding: 8px; background: var(--bg); }
 #band { position: absolute; top: 0; left: 0; right: 0; padding: 6px 12px 4px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
 /* phones only: the whole sector fitted to the width, or a readable mile that pans */
-#btn-zoom { display: none; margin-left: auto; padding: 2px 8px; font-size: 11px; letter-spacing: .08em; pointer-events: auto; }
+#btn-zoom { display: none; letter-spacing: .08em; }
 #btn-zoom[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
 #radio { font-size: 13px; line-height: 1.45; min-height: 38px; }
 #radio .ctl { color: var(--accent); }
@@ -269,18 +269,22 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
   #scope-wrap { padding: 4px; min-height: 0; display: block; place-items: normal; overflow-x: auto; touch-action: pan-x pan-y; scrollbar-width: thin; scrollbar-color: var(--lit) transparent; }
   #scope-wrap::-webkit-scrollbar { height: 4px; }
   #scope-wrap::-webkit-scrollbar-thumb { background: var(--lit); border-radius: 2px; }
-  #btn-zoom { display: inline-block; min-height: 32px; padding: 4px 12px; }
+  #btn-zoom { display: inline-block; }
   #hud .btns button { min-height: 36px; }
-  /* the lamps, one line, only those lit: the row keeps its height (ZOOM is
-     in it), so the scope never moves when one comes on */
-  #lamps-row { min-height: 32px; align-items: center; }
+  /* the lamps, one line, only those lit: the row keeps its height, so the
+     scope never moves when one comes on */
+  #lamps-row { min-height: 22px; align-items: center; }
   #lamps { flex-wrap: nowrap; overflow: hidden; }
   .lamp:not(.lit) { display: none; }
   /* a plane selected: the board and the log step aside, so the whole
      command panel sits under the scope; Cancel brings them back */
   #game.has-sel #strips, #game.has-sel #log { display: none; }
   #band { position: sticky; left: 0; width: 100%; padding: 4px 8px; pointer-events: auto; }
-  #radio { min-height: 0; font-size: 12px; }
+  /* the radio keeps one height, two lines for each side of the exchange,
+     so a long message never moves the scope under a finger; anything longer
+     is in the log */
+  #radio { min-height: 0; height: calc(4 * 1.45em); font-size: 12px; overflow: hidden; }
+  #radio .ctl, #radio .pilot { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   #scope { max-width: none; max-height: none; touch-action: pan-x pan-y; }
   #right { border-left: 0; border-top: 1px solid var(--line); }
   #strips { max-height: 220px; }
@@ -289,12 +293,30 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
   #hud .where { display: none; }
   #hud .btns { margin-left: auto; }
   .lamp { padding: 2px 5px; }
-  .compass { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); }
+  .compass { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); }
   /* the heights two abreast, still reading top-down, so the whole panel
      fits under a zoomed scope */
-  .alts { grid-template-columns: repeat(2, 56px); }
+  .alts { grid-template-columns: repeat(2, 54px); }
+  /* Say and Cancel share a row, so the column of actions is four high and
+     no taller than the compass beside it */
+  .acts { display: grid; grid-template-columns: auto 1fr; }
+  .acts button { grid-column: 1 / -1; }
+  .acts button[data-act="status"] { grid-column: 1; padding-left: 7px; padding-right: 7px; }
+  .acts button[data-act="cancel"] { grid-column: 2; padding-left: 4px; padding-right: 4px; }
   .alts button { height: 44px; }
-  #notice, #coach { position: sticky; left: 8px; transform: none; max-width: none; margin: 6px 4px 0; }
+  /* the notes go above the scope, not over its foot, where arrivals come
+     in: the scope's things in order, top to bottom, none aligned to the
+     middle (see place-items above) */
+  #scope-wrap { display: flex; flex-direction: column; align-items: flex-start; }
+  #band { order: 0; } #notice, #coach { order: 1; } #scope { order: 2; }
+  #notice, #coach { position: sticky; left: 4px; bottom: auto; transform: none; max-width: none; width: calc(100% - 8px); margin: 0 0 6px; }
+}
+/* on a phone the title menu is too narrow for a row's detail beside its
+   name: it goes on a line of its own underneath, whole, rather than cut off
+   (the title's own rules are @gk-title's, so this outranks them) */
+@media (max-width: 640px) {
+  .gk-title .gk-menu .gk-pr { flex-wrap: wrap; height: auto; min-height: 50px; padding-top: 8px; padding-bottom: 8px; row-gap: 0; }
+  .gk-title .gk-menu .gk-pr .gk-meta { flex-basis: 100%; margin-left: 0; white-space: normal; font-size: 13px; line-height: 1.3; }
 }
 /* without a keyboard the key hints go, whole phrases at a time, so what is
    left still reads as a sentence; .tp is the touch wording in their place */
@@ -324,6 +346,7 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
     </div>
     <span id="speed">▶▶ FAST</span>
     <div class="btns">
+      <button id="btn-zoom" aria-pressed="false" title="Fit the whole sector, or zoom in and pan">ZOOM</button>
       <button id="btn-pause" aria-label="Pause" aria-pressed="false" title="Pause (P)">⏸</button>
       <button id="btn-fast" aria-label="Fast time, while held" title="Fast time, while held (Space)">▶▶</button>
       <button id="btn-aids" aria-label="Scope aids" aria-pressed="false" title="Scope aids: Learning or Classic (L)">LEARN</button>
@@ -337,7 +360,7 @@ body > .gk-sheet { z-index: 100; }   /* the canon block injects its own .gk-shee
       <div id="scope-wrap">
         <div id="band">
           <div id="radio" aria-live="polite"><div class="ctl"><span class="who">ATC</span><span id="radio-ctl"></span></div><div class="pilot"><span class="who">PLT</span><span id="radio-pilot"></span></div></div>
-          <div id="lamps-row"><div id="lamps" aria-hidden="true"></div><button id="btn-zoom" aria-pressed="false" title="Fit the whole sector, or zoom in and pan">ZOOM</button></div>
+          <div id="lamps-row"><div id="lamps" aria-hidden="true"></div></div>
         </div>
         <canvas id="scope" width="1000" height="600" role="img" aria-label="Radar scope"></canvas>
         <div id="banner"></div>
@@ -3240,11 +3263,15 @@ function drawPlane(c, X, Y, h, alt, id, col, pitch, talt, pending) {
   c.fillText(id, X + pitch * .5, ay); c.textAlign = "center";
   return ay;
 }
+/* a phone: the whole sector in 375px is a mile of ~9px, so the scope's
+   words are drawn a size up from their floors */
+const PHONE = matchMedia("(max-width: 860px)");
 function render() {
   if (!S) return;
   const sec = SECTORS[S.sector], W = cv.width, H = cv.height, now = performance.now(), still = reduced();
+  const up = PHONE.matches ? 1.25 : 1;
   cx.clearRect(0, 0, W, H);
-  cx.font = `${Math.max(9 * dpr, pitch * 0.55)}px ${getComputedStyle(document.body).fontFamily}`;
+  cx.font = `${Math.max(9 * up * dpr, pitch * 0.55)}px ${getComputedStyle(document.body).fontFamily}`;
   cx.textBaseline = "middle"; cx.textAlign = "center";
   /* the dots and the lanes */
   if (!sec._lanes) sec._lanes = lanes(sec);
@@ -3339,11 +3366,11 @@ function render() {
       /* the quick key, boxed, after the letter */
       const bx = X + pitch * 1.15, bw = pitch * .5;
       cx.strokeStyle = col; cx.lineWidth = 1 * dpr; cx.strokeRect(bx, ay - bw / 2, bw, bw);
-      cx.save(); cx.font = `${Math.max(8 * dpr, pitch * .4)}px ${cx.font.split("px ")[1]}`; cx.fillText(hot, bx + bw / 2, ay + dpr); cx.restore();
+      cx.save(); cx.font = `${Math.max(8 * up * dpr, pitch * .4)}px ${cx.font.split("px ")[1]}`; cx.fillText(hot, bx + bw / 2, ay + dpr); cx.restore();
     }
     /* the flight number, small, above the arrowhead */
     if (!small || p === sel) {
-      cx.save(); cx.font = `${Math.max(10 * dpr, pitch * .42)}px ${cx.font.split("px ")[1]}`; cx.globalAlpha = inConf || p === sel ? 1 : .85;
+      cx.save(); cx.font = `${Math.max(10 * up * dpr, pitch * .42)}px ${cx.font.split("px ")[1]}`; cx.globalAlpha = inConf || p === sel ? 1 : .85;
       cx.strokeStyle = "#06101c"; cx.lineWidth = 3 * dpr; cx.lineJoin = "round"; cx.strokeText(shortCall(p), X, ay - pitch * .72);
       cx.fillText(shortCall(p), X, ay - pitch * .72); cx.restore();
     }
@@ -3396,8 +3423,8 @@ function render() {
     cx.strokeStyle = "#ff5266"; cx.lineWidth = 2 * dpr;
     cx.beginPath(); cx.moveTo(x - r, y - r); cx.lineTo(x + r, y + r); cx.moveTo(x + r, y - r); cx.lineTo(x - r, y + r); cx.stroke();
     cx.beginPath(); cx.arc(x, y, r * 1.6, 0, Math.PI * 2); cx.stroke();
-    cx.font = `600 ${Math.max(10 * dpr, pitch * .48)}px ${cx.font.split("px ")[1]}`;
-    const tw = cx.measureText(m.label).width, padX = 6 * dpr, bh = Math.max(10 * dpr, pitch * .48) + 8 * dpr;
+    cx.font = `600 ${Math.max(10 * up * dpr, pitch * .48)}px ${cx.font.split("px ")[1]}`;
+    const tw = cx.measureText(m.label).width, padX = 6 * dpr, bh = Math.max(10 * up * dpr, pitch * .48) + 8 * dpr;
     const right = x + r * 1.6 + 6 * dpr + tw + 2 * padX < W;
     const bx = right ? x + r * 1.6 + 6 * dpr : x - r * 1.6 - 6 * dpr - tw - 2 * padX;
     let by = Math.max(4 * dpr, Math.min(H - bh - 4 * dpr, y - bh / 2));
@@ -3442,6 +3469,9 @@ function render() {
     $("scope-wrap").classList.toggle("paused", paused);
   }
   b.style.top = paused ? cv.offsetTop + cv.offsetHeight / 2 + "px" : "";
+  /* a zoomed scope pans: PAUSED goes in the middle of what is on screen */
+  const wrap = $("scope-wrap"), pans = paused && wrap.scrollWidth > wrap.clientWidth;
+  b.style.left = pans ? wrap.scrollLeft + wrap.clientWidth / 2 + "px" : "";
   if ($("btn-pause").getAttribute("aria-pressed") !== String(loop.paused)) $("btn-pause").setAttribute("aria-pressed", String(loop.paused));
 }
 
